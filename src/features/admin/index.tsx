@@ -1,18 +1,10 @@
-import { useAppSelector } from "@/app/hooks";
-import { Button } from "@/components/ui/button";
-import { selectTheme } from "@/features/settings/settingsSlice";
+import Header from "./components/header/Header";
+import ThemedWrapper from "./components/themed-wrapper/ThemedWrapper";
 
-
-export default function Admin() {
-    const theme = useAppSelector(selectTheme);
-
+export default function AdminPanel() {
     return (
-        <div
-            className={`${theme}-theme min-h-screen flex flex-col items-center justify-center gap-4`}
-        >
-            <h1 className="text-3xl font-bold text-primary">Themed App</h1>
-
-            <Button className="mt-4"> Shadcn Primary Button </Button>
-        </div>
+        <ThemedWrapper>
+            <Header />
+        </ThemedWrapper>
     );
 }
