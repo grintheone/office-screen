@@ -5,7 +5,7 @@ function ThemedWrapper({ children }: React.PropsWithChildren) {
     const theme = useAppSelector(selectTheme);
 
     return (
-        <main className={`${theme}-theme min-h-screen flex flex-col p-4`}
+        <main className={`${theme}-theme min-h-screen flex flex-col gap-4 p-4`}
         >
             {children}
         </main>
