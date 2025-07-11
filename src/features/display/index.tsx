@@ -1,9 +1,11 @@
-import Background from "./components/background/Background";
+import BackgroundWrapper from "./components/background-wrapper/BackgroundWrapper";
 
 function Display() {
-    return <div className="bg-black min-h-screen relative">
-        <Background />
-    </div>
+    return (
+        <BackgroundWrapper>
+
+        </BackgroundWrapper>
+    )
 }
 
 export default Display;

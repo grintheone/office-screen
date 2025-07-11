@@ -50,7 +50,7 @@ body {
     --vbb-primary: oklch(60.04% 0.244 358.63);
     --solt-primary: oklch(68.96% 0.119 191.21);
     --lis-primary: oklch(75.42% 0.165 62.65);
-    --kpd-primary: oklch(76.25% 0.117 199.89);
+    --kpd-primary: oklch(82.70% 0.064 203.58);
     --a78-primary: oklch(62.97% 0.157 249.35);
     /* Tailwind defaults */
     --radius: 0.625rem;
