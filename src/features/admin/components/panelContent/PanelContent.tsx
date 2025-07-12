@@ -1,9 +1,9 @@
-import List, { type IList } from "../list/List";
-import type { PanelIds } from "../panels/Panels";
+import List, { type IList } from "@/features/admin/components/list/List";
+import type { PanelIds } from "@/features/admin/components/panels/Panels";
 
 type AvailableLists = {
     [key in PanelIds]: IList[];
-}
+};
 
 const availableLists: AvailableLists = {
     main: [

@@ -1,4 +1,4 @@
-import Fallback from "./components/Fallback";
-import Redirect from "./components/Redirect";
+import Fallback from "@/features/fallback/components/Fallback";
+import Redirect from "@/features/fallback/components/Redirect";
 
 export { Fallback, Redirect };

@@ -1,6 +1,6 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import PanelContent from "../panelContent/PanelContent";
+import PanelContent from "@/features/admin/components/panelContent/PanelContent";
 
 const availablePanels = [
     { id: "main", name: "Основные" },

@@ -1,4 +1,4 @@
-import BackgroundWrapper from "./components/background-wrapper/BackgroundWrapper";
+import BackgroundWrapper from "@/features/display/components/background-wrapper/BackgroundWrapper";
 
 function Display() {
     return (
