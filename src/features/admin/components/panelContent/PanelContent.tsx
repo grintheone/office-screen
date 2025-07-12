@@ -1,16 +1,19 @@
-
-import List from "../list/List";
+import List, { type IList } from "../list/List";
 import type { PanelIds } from "../panels/Panels";
 
-const availableLists = {
+type AvailableLists = {
+    [key in PanelIds]: IList[];
+}
+
+const availableLists: AvailableLists = {
     main: [
-        { id: "birthday", name: "Дни рождения" },
-        { id: "holiday", name: "Праздники" },
-        { id: "extra", name: "Дополнительно" },
+        { type: "birthday", name: "Дни рождения" },
+        { type: "holiday", name: "Праздники" },
+        { type: "extra", name: "Дополнительно" },
     ],
     additional: [
-        { id: "quote", name: "Цитаты" },
-        { id: "clock", name: "Блок часов" },
+        { type: "quote", name: "Цитаты" },
+        { type: "clock", name: "Блок часов" },
     ],
 };
 
@@ -19,9 +22,11 @@ type Props = {
 };
 
 function PanelContent({ panelId }: Props) {
-    const content = availableLists[panelId].map(list => <List key={list.id} type={list.id} name={list.name} />)
+    const content = availableLists[panelId].map((list) => (
+        <List key={list.type} type={list.type} name={list.name} />
+    ));
 
-    return content
+    return content;
 }
 
 export default PanelContent;
