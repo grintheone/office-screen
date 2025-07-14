@@ -1,4 +1,5 @@
 import { useAppSelector } from "@/app/hooks";
+import { Toaster } from "@/components/ui/sonner";
 import Settings from "@/features/settings";
 import { selectTheme, type Theme } from "@/features/settings/settingsSlice";
 
@@ -26,8 +27,11 @@ function Header() {
         <header className="flex justify-between items-center">
             <div className="flex items-center gap-4">
                 <span className="text-lg font-me">Панель управления</span>
-                <h1 className="text-3xl font-bold underline decoration-primary">{calculateReadableName(theme)}</h1>
+                <h1 className="text-3xl font-bold underline decoration-primary">
+                    {calculateReadableName(theme)}
+                </h1>
             </div>
+            <Toaster position="top-center" richColors />
             <Settings />
         </header>
     );

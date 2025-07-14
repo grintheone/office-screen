@@ -4,10 +4,12 @@ export type AdminContentTypes = "birthday" | "holiday" | "extra" | "quote" | "cl
 
 interface AdminState {
     modalType: null | AdminContentTypes
+    isModalOpen: boolean
 }
 
 const initialState: AdminState = {
     modalType: null,
+    isModalOpen: false,
 };
 
 const adminSlice = createSlice({
@@ -17,12 +19,15 @@ const adminSlice = createSlice({
         setModalType(state, action: PayloadAction<AdminContentTypes>) {
             state.modalType = action.payload;
         },
+        toggleModal(state) {
+            state.isModalOpen = !state.isModalOpen
+        }
     },
     selectors: {
         selectModalType: (state) => state.modalType
     }
 });
 
-export const { setModalType } = adminSlice.actions;
+export const { setModalType, toggleModal } = adminSlice.actions;
 export const { selectModalType } = adminSlice.selectors;
 export default adminSlice.reducer;
