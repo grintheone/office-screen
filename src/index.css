@@ -62,7 +62,8 @@ body {
 
 :root {
     /* Custom styles for themes */
-    --vbb-primary: oklch(60.04% 0.244 358.63);
+    /* --vbb-primary: oklch(60.04% 0.244 358.63); */
+    --vbb-primary: oklch(54.82% 0.218 4.13);
     --solt-primary: oklch(68.96% 0.119 191.21);
     --lis-primary: oklch(75.42% 0.165 62.65);
     --kpd-primary: oklch(82.70% 0.064 203.58);

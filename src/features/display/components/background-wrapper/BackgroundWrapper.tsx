@@ -17,17 +17,17 @@ function calculateFilters(theme: Theme) {
 }
 
 const BackgroundWrapper = ({ children }: React.PropsWithChildren) => {
-    const theme = useAppSelector(selectTheme);
+    const org = useAppSelector(selectTheme);
 
-    if (!theme) return null
+    if (!org) return null
 
     return (
-        <main className="bg-black min-h-screen relative">
+        <main className={`${org}-theme bg-black min-h-screen relative`}>
             {children}
             <video
-                src={theme === "vbb" ? backgroundVbb : backgroundDefault}
+                src={org === "vbb" ? backgroundVbb : backgroundDefault}
                 className="absolute top-0 left-0 right-0 bottom-0 w-full h-full object-cover"
-                style={calculateFilters(theme)}
+                style={calculateFilters(org)}
                 autoPlay
                 muted
                 loop
