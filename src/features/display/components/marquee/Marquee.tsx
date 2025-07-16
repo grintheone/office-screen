@@ -1,5 +1,5 @@
-import TextBlock from "@/features/marquee/TextBlock";
-import TypeBlock from "@/features/marquee/TypeBlock";
+import TextBlock from "@/features/display/components/marquee/TextBlock";
+import TypeBlock from "@/features/display/components/marquee/TypeBlock";
 import { nanoid } from "@reduxjs/toolkit";
 import Marq from "react-fast-marquee";
 

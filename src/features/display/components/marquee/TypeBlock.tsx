@@ -1,5 +1,4 @@
-import type { MarqueTypeBlock } from "@/features/marquee/Marquee";
-
+import type { MarqueTypeBlock } from "@/features/display/components/marquee/Marquee"
 
 function getBlockTextByType(type: MarqueTypeBlock) {
     switch (type) {
