@@ -1,6 +1,6 @@
 import BackgroundWrapper from "@/features/display/components/background-wrapper/BackgroundWrapper";
-import ClockFeed from "@/features/display/components/clockFeed/ClockFeed";
-import MainFeed from "@/features/display/components/mainFeed/MainFeed";
+import ClockFeed from "@/features/display/components/clock-feed/ClockFeed";
+import MainFeed from "@/features/display/components/main-feed/MainFeed";
 
 function Display() {
     return (
