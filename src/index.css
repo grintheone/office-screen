@@ -10,8 +10,7 @@ body {
 @theme {
     /* Animations */
     --animate-half-spin: half-spin .2s ease-in-out forwards;
-    --animate-slide-in: slide-in 1s ease-in-out forwards;
-    --animate-slide-in: slide-out 1s ease-in-out forwards;
+    --animate-marquee-scroll: marquee-scroll 20s linear infinite;
 
     @keyframes half-spin {
         0% {
@@ -23,31 +22,16 @@ body {
         }
     }
 
-    @keyframes slide-in {
-        0%: {
-            transform: translateX(100%);
-            opacity: 0;
+    @keyframes marquee-scroll {
+        0% {
+            transform: translateX(0%);
         }
 
-
-        100%: {
-            transform: translateX(0);
-            opacity: 1;
+        100% {
+            transform: translateX(-50%);
         }
     }
 
-    @keyframes slide-out {
-        0%: {
-
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        100%: {
-            transform: 'translateX(100%)';
-            opacity: 0;
-        }
-    }
 }
 
 @theme inline {
@@ -96,6 +80,11 @@ body {
     --lis-primary: oklch(75.42% 0.165 62.65);
     --kpd-primary: oklch(82.70% 0.064 203.58);
     --a78-primary: oklch(62.97% 0.157 249.35);
+    --vbb-secondary: oklch(47.5% 0.25 4.13);
+    --solt-secondary: oklch(55.2% 0.18 191.21);
+    --lis-secondary: oklch(60.3% 0.22 62.65);
+    --kpd-secondary: oklch(65.8% 0.12 203.58);
+    --a78-secondary: oklch(50.5% 0.22 249.35);
     /* Tailwind defaults */
     --radius: 0.625rem;
     --background: oklch(1 0 0);
@@ -178,20 +167,25 @@ body {
 /* Themes */
 .vbb-theme {
     --primary: var(--vbb-primary);
+    --secondary: var(--vbb-secondary);
 }
 
 .solt-theme {
     --primary: var(--solt-primary);
+    --secondary: var(--solt-secondary);
 }
 
 .lis-theme {
     --primary: var(--lis-primary);
+    --secondary: var(--lis-secondary);
 }
 
 .kpd-theme {
     --primary: var(--kpd-primary);
+    --secondary: var(--kpd-secondary);
 }
 
 .a78-theme {
     --primary: var(--a78-primary);
+    --secondary: var(--a78-secondary);
 }
