@@ -31,7 +31,7 @@ const data: IMarque[] = [
 
 function Marquee() {
     return (
-        <Marq>
+        <Marq className="z-50" autoFill={true} gradient gradientColor="#000">
             {data.map(item => (
                 <div key={nanoid()} className="flex">
                     <TypeBlock type={item.type} />

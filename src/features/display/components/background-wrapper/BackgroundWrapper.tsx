@@ -1,7 +1,10 @@
-import { useAppSelector } from "@/app/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import backgroundDefault from "@/assets/videos/solt_bck.webm";
 import backgroundVbb from "@/assets/videos/vbb_bck.webm";
+import confetti from "@/assets/videos/confetti.webm";
+import fireworks from "@/assets/videos/fireworks.webm";
 import { selectTheme, type Theme } from "@/features/settings/settingsSlice";
+import { selectCurrentEffect, setEffect, type VideoEffects } from "@/features/display/displaySlice";
 
 function calculateFilters(theme: Theme) {
     switch (theme) {
@@ -16,8 +19,25 @@ function calculateFilters(theme: Theme) {
     }
 }
 
+function getCurrentEffectSrc(effect: VideoEffects) {
+    switch (effect) {
+        case "confetti":
+            return confetti
+        case "fireworks":
+            return fireworks
+        case "none":
+            return undefined
+    }
+}
+
 const BackgroundWrapper = ({ children }: React.PropsWithChildren) => {
     const org = useAppSelector(selectTheme);
+    const currentEffect = useAppSelector(selectCurrentEffect)
+    const dispatch = useAppDispatch()
+
+    const handleEffectEnd = () => {
+        dispatch(setEffect("none"))
+    }
 
     if (!org) return null
 
@@ -26,11 +46,18 @@ const BackgroundWrapper = ({ children }: React.PropsWithChildren) => {
             {children}
             <video
                 src={org === "vbb" ? backgroundVbb : backgroundDefault}
-                className="absolute top-0 left-0 right-0 bottom-0 w-full h-full object-cover"
+                className="absolute inset-0 size-full object-cover"
                 style={calculateFilters(org)}
                 autoPlay
                 muted
                 loop
+            />
+            <video
+                className='absolute inset-0 size-full object-cover object-center'
+                src={getCurrentEffectSrc(currentEffect)}
+                onEnded={handleEffectEnd}
+                autoPlay
+                muted
             />
         </main>
     )

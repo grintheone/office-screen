@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { EffectSelectShema } from "@/features/display/displaySlice";
 
 // Define accepted MIME types
 const acceptedImageTypes = [
@@ -68,7 +69,7 @@ const holidaySchema = z.object({
                 '.mp4', '.webm', '.mov', '.avi'
             ].join(', ')}`
         ),
-    effect: z.string(),
+    effect: z.enum(EffectSelectShema),
     showEverywhere: z.boolean(),
 });
 
@@ -81,7 +82,7 @@ function HolidayForm() {
         defaultValues: {
             title: "",
             displayDate: undefined,
-            effect: "0",
+            effect: "none",
             showEverywhere: false,
             media: [] as File[],
         },
@@ -165,7 +166,7 @@ function HolidayForm() {
                                         <FormLabel>Эффект</FormLabel>
                                         <Select
                                             onValueChange={field.onChange}
-                                            defaultValue={"0"}
+                                            defaultValue={"none"}
                                         >
                                             <FormControl>
                                                 <SelectTrigger>
@@ -173,13 +174,13 @@ function HolidayForm() {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                <SelectItem value="0">
+                                                <SelectItem value="none">
                                                     Без эффекта
                                                 </SelectItem>
-                                                <SelectItem value="1">
+                                                <SelectItem value="fireworks">
                                                     Салют
                                                 </SelectItem>
-                                                <SelectItem value="2">
+                                                <SelectItem value="confetti">
                                                     Конфетти
                                                 </SelectItem>
                                             </SelectContent>

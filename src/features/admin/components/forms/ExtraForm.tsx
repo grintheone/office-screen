@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { EffectSelectShema } from "@/features/display/displaySlice";
 
 
 // Define accepted MIME types
@@ -63,7 +64,7 @@ const extraSchema = z.object({
                 ".avi",
             ].join(", ")}`,
         ),
-    effect: z.string(),
+    effect: z.enum(EffectSelectShema),
     showNow: z.boolean(),
     showEverywhere: z.boolean(),
 });
@@ -75,7 +76,7 @@ function ExtraForm() {
         resolver: zodResolver(extraSchema),
         defaultValues: {
             text: "",
-            effect: "0",
+            effect: "none",
             showNow: true,
             showEverywhere: false,
             media: [] as File[],
@@ -112,16 +113,16 @@ function ExtraForm() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Эффект</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={"0"}>
+                                    <Select onValueChange={field.onChange} defaultValue={"none"}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="0">Без эффекта</SelectItem>
-                                            <SelectItem value="1">Салют</SelectItem>
-                                            <SelectItem value="2">Конфетти</SelectItem>
+                                            <SelectItem value="none">Без эффекта</SelectItem>
+                                            <SelectItem value="fireworks">Салют</SelectItem>
+                                            <SelectItem value="confetti">Конфетти</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormDescription>
