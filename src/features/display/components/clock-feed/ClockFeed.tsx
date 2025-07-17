@@ -1,39 +1,29 @@
-import Clock from "@/features/display/components/clock";
 import ClockBirthdays from "@/features/display/components/clock-birthdays/ClockBirthdays";
+import Clock from "@/features/display/components/clock";
 import ClockCard from "@/features/display/components/cards/ClockCard";
-import { useEffect, useState } from "react";
+import Slider from "@/features/display/components/slider/Slider";
 
 const carouselItems = [
-    <Clock />,
-    <ClockCard />,
-    <ClockBirthdays />
+    {
+        component: <Clock />,
+        duration: 3000  // 3 seconds display time
+    },
+    {
+        component: <ClockCard />,
+        duration: 5000  // 5 seconds display time
+    },
+    {
+        component: <ClockBirthdays />,
+        duration: 4000  // 4 seconds display time
+    }
 ];
 
 function ClockFeed() {
-    const [currentIndex, setCurrentIndex] = useState(0);
-
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselItems.length);
-        }, 3000);
-
-        return () => clearInterval(timer);
-    }, []);
-
     return (
-        <section className="grow basis-4/12 flex items-center relative">
-            {carouselItems.map((item, index) => (
-                <div
-                    key={index}
-                    className={`absolute flex items-center justify-center inset-0 transition-opacity duration-1000 ${index === currentIndex ? 'opacity-100' : 'opacity-0'
-                        }`}
-                >
-                    {item}
-                </div>
-            ))}
+        <section className="grow basis-4/12 relative">
+            <Slider type="clock" slides={carouselItems} />
         </section>
-    )
+    );
 }
 
 export default ClockFeed;

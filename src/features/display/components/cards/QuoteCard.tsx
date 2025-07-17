@@ -6,12 +6,12 @@ function QuoteCard() {
     return (
         <div
             key={nanoid()}
-            className="relative rounded-md w-[800px] h-[600px] object-cover object-center"
+            className="relative rounded-xl w-[800px] h-[600px] object-cover object-center animate-slide-up"
             style={{
                 backgroundImage: `url(${background})`
             }}
         >
-            <div className="bg-black/50 absolute inset-0 rounded-md" />
+            <div className="bg-black/50 absolute inset-0 rounded-xl" />
             <div className="relative z-30 size-full px-8 flex flex-col gap-4 justify-center items-center text-center text-white text-shadow-lg">
                 <div className="text-4xl">Есть только один способ избежать критики: ничего не делайте, ничего не говорите и будьте никем.</div>
                 <div className="text-2xl">Аристотель</div>
