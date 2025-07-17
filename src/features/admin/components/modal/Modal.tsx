@@ -9,10 +9,11 @@ import {
     selectModalType,
 } from "@/features/admin/adminSlice";
 import BirthdayForm from "@/features/admin/components/forms/BirthdayForm";
-import ExtraForm from "@/features/admin/components/forms/ExtraForm";
+import InfoForm from "@/features/admin/components/forms/InfoForm";
 import HolidayForm from "@/features/admin/components/forms/HolidayForm";
 import QuoteForm from "@/features/admin/components/forms/QuoteForm";
 import { selectTheme } from "@/features/settings/settingsSlice";
+import ClockForm from "@/features/admin/components/forms/ClockForm";
 
 function getModalTitleByType(type: AdminContentTypes) {
     switch (type) {
@@ -20,7 +21,7 @@ function getModalTitleByType(type: AdminContentTypes) {
             return "Добавить день рождение"
         case "holiday":
             return "Добавить праздник"
-        case "extra":
+        case "info":
             return "Добавить событие/оборудование"
         case "quote":
             return "Добавить цитату"
@@ -35,10 +36,12 @@ function getModalFormByType(type: AdminContentTypes) {
             return <BirthdayForm />
         case "holiday":
             return <HolidayForm />
-        case "extra":
-            return <ExtraForm />
+        case "info":
+            return <InfoForm />
         case "quote":
             return <QuoteForm />
+        case "clock":
+            return <ClockForm />
     }
 }
 
@@ -51,7 +54,7 @@ function Modal() {
     return (
         <DialogContent
             className={
-                `${org}-theme ${modalType === "holiday" || modalType === "extra" ? "sm:max-w-4xl" : "sm:max-w-3xl"}`
+                `${org}-theme ${modalType === "holiday" || modalType === "info" ? "sm:max-w-4xl" : "sm:max-w-3xl"}`
             }>
             <DialogHeader>
                 <DialogTitle className="text-2xl">{getModalTitleByType(modalType)}</DialogTitle>

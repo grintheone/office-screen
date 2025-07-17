@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-export type AdminContentTypes = "birthday" | "holiday" | "extra" | "quote" | "clock"
+export type AdminContentTypes = "info" | "holiday" | "quote" | "birthday" | "clock"
 
 interface AdminState {
     modalType: null | AdminContentTypes

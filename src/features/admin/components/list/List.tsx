@@ -8,7 +8,7 @@ import {
 } from "@/features/admin/adminSlice";
 import BirthdayCard from "@/features/admin/components/cards/BirthdayCard";
 import ClockCard from "@/features/admin/components/cards/ClockCard";
-import ExtraCard from "@/features/admin/components/cards/ExtraCard";
+import InfoCard from "@/features/admin/components/cards/InfoCard";
 import HolidayCard from "@/features/admin/components/cards/HolidayCard";
 import QuoteCard from "@/features/admin/components/cards/QuoteCard";
 
@@ -27,8 +27,8 @@ function displayCardByType(type: AdminContentTypes) {
             return <BirthdayCard />;
         case "holiday":
             return <HolidayCard />;
-        case "extra":
-            return <ExtraCard />;
+        case "info":
+            return <InfoCard />;
         case "quote":
             return <QuoteCard />;
         case "clock":

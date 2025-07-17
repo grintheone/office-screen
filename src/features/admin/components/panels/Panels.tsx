@@ -3,8 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PanelContent from "@/features/admin/components/panelContent/PanelContent";
 
 const availablePanels = [
-    { id: "main", name: "Основные" },
-    { id: "additional", name: "Дополнительные" },
+    { id: "main-feed", name: "Основная лента" },
+    { id: "clock-feed", name: "Лента часов" },
 ] as const
 
 export type PanelIds = (typeof availablePanels)[number]["id"]
@@ -20,7 +20,7 @@ function Panels() {
 
     return (
         <main className="grow relative">
-            <Tabs defaultValue="main" className="gap-4 h-full absolute left-0 right-0 top-0 bottom-0">
+            <Tabs defaultValue="main-feed" className="gap-4 h-full absolute left-0 right-0 top-0 bottom-0">
                 <TabsList>
                     {triggers}
                 </TabsList>

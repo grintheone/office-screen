@@ -6,7 +6,7 @@ import { ru } from "react-day-picker/locale";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import MediaIcon from "@/assets/icons/media.svg?react";
+import ImageIcon from "@/assets/icons/image.svg?react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
@@ -37,25 +37,19 @@ import { cn } from "@/lib/utils";
 import { EffectSelectShema } from "@/features/display/displaySlice";
 
 // Define accepted MIME types
-const acceptedImageTypes = [
+const ACCEPTER_IMAGE_TYPES = [
     'image/jpeg',      // .jpeg, .jpg
     'image/png',       // .png
 ];
 
-const acceptedVideoTypes = [
-    'video/mp4',       // .mp4
-    'video/webm',      // .webm
-];
-
 const maxFileSize = 10 * 1024 * 1024; // 10MB
-
 
 const holidaySchema = z.object({
     title: z.string().min(1, { message: "Заполните поле" }),
     displayDate: z.date({
         error: "Выберите дату отображения",
     }),
-    media: z
+    image: z
         .any()
         .refine((files) => files?.length === 1, 'Добавьте фото/видео')
         .refine(
@@ -63,10 +57,9 @@ const holidaySchema = z.object({
             `Размер не должен превышеать ${maxFileSize / 1024 / 1024}MB`
         )
         .refine(
-            (files) => [...acceptedImageTypes, ...acceptedVideoTypes].includes(files[0]?.type),
+            (files) => ACCEPTER_IMAGE_TYPES.includes(files[0]?.type),
             `Доступные медиа форматы: ${[
-                '.jpg', '.jpeg', '.png', '.webp',
-                '.mp4', '.webm', '.mov', '.avi'
+                '.jpg', '.jpeg', '.png',
             ].join(', ')}`
         ),
     effect: z.enum(EffectSelectShema),
@@ -84,7 +77,7 @@ function HolidayForm() {
             displayDate: undefined,
             effect: "none",
             showEverywhere: false,
-            media: [] as File[],
+            image: [] as File[],
         },
     });
 
@@ -196,7 +189,7 @@ function HolidayForm() {
                     </div>
                     <FormField
                         control={form.control}
-                        name="media"
+                        name="image"
                         render={({ field: { onChange, value, ...rest } }) => (
                             <FormItem>
                                 <FormControl>
@@ -208,12 +201,12 @@ function HolidayForm() {
                                                 className="w-full h-full object-cover rounded-md"
                                             />
                                         ) : (
-                                            <MediaIcon className="text-primary/50 size-36" />
+                                            <ImageIcon className="text-primary/50 size-36" />
                                         )}
                                         <Input
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                             type="file"
-                                            accept="image/*, video/*"
+                                            accept="image/*"
                                             onChange={(e) => onChange(e.target.files)}
                                             {...rest}
                                         />

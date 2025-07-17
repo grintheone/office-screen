@@ -6,14 +6,14 @@ type AvailableLists = {
 };
 
 const availableLists: AvailableLists = {
-    main: [
-        { type: "birthday", name: "Дни рождения" },
+    "main-feed": [
+        { type: "info", name: "Информационные слайды" },
         { type: "holiday", name: "Праздники" },
-        { type: "extra", name: "Дополнительно" },
-    ],
-    additional: [
         { type: "quote", name: "Цитаты" },
-        { type: "clock", name: "Блок часов" },
+    ],
+    "clock-feed": [
+        { type: "birthday", name: "Дни рождения" },
+        { type: "clock", name: "Информационные слайды" },
     ],
 };
 
