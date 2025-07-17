@@ -54,6 +54,7 @@ const BackgroundWrapper = ({ children }: React.PropsWithChildren) => {
             />
             <video
                 className='absolute inset-0 size-full object-cover object-center'
+                style={currentEffect === "fireworks" ? { filter: `hue-rotate(${Math.random() * 360}deg)` } : undefined}
                 src={getCurrentEffectSrc(currentEffect)}
                 onEnded={handleEffectEnd}
                 autoPlay
