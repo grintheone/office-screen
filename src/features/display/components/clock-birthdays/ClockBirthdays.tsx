@@ -8,7 +8,7 @@ function ClockBirthdays() {
 
     return (
         <div
-            className={`relative size-[450px] bg-cover bg-center font-bold text-xl leading-6`}
+            className={`relative size-[450px] bg-cover bg-center font-bold text-xl leading-6 text-shadow-sm`}
             style={{ backgroundImage: `url(${background})` }}
         >
             <div className="text-[#90723f] absolute text-center top-24 left-1/2 -translate-x-1/2">Дни рождения сегодня:</div>

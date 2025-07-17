@@ -1,9 +1,11 @@
 import Clock from "@/features/display/components/clock";
 import ClockBirthdays from "@/features/display/components/clock-birthdays/ClockBirthdays";
+import ClockCard from "@/features/display/components/cards/ClockCard";
 import { useEffect, useState } from "react";
 
 const carouselItems = [
     <Clock />,
+    <ClockCard />,
     <ClockBirthdays />
 ];
 
@@ -14,7 +16,7 @@ function ClockFeed() {
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselItems.length);
-        }, 10000);
+        }, 3000);
 
         return () => clearInterval(timer);
     }, []);

@@ -8,7 +8,7 @@ function Clock() {
     return (
         <div className="flex flex-col items-center gap-8">
             <ClockBody />
-            <div className="text-white text-shadow-lg text-center">
+            <div className="text-white text-center">
                 <div className="font-bold text-[38px]">
                     {format(currentDate, "d MMMM", { locale: ru })}
                 </div>

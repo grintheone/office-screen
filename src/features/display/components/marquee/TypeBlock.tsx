@@ -19,7 +19,7 @@ type Props = {
 function TypeBlock({ type }: Props) {
     return (
         <div className="bg-primary px-4 py-2">
-            <span className="text-xl text-white text-shadow-lg">
+            <span className="text-xl text-white">
                 {getBlockTextByType(type)}
             </span>
         </div>

@@ -42,7 +42,7 @@ const BackgroundWrapper = ({ children }: React.PropsWithChildren) => {
     if (!org) return null
 
     return (
-        <main className={`${org}-theme bg-black min-h-screen relative`}>
+        <main className={`${org}-theme bg-black min-h-screen relative`} style={{ textShadow: "0 2.5px 2.5px #000" }}>
             {children}
             <video
                 src={org === "vbb" ? backgroundVbb : backgroundDefault}

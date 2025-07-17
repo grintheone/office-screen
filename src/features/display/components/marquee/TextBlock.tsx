@@ -5,7 +5,7 @@ type Props = {
 function TextBlock({ text }: Props) {
     return (
         <div className="bg-secondary px-4 py-2">
-            <span className="text-xl text-white text-shadow-lg">
+            <span className="text-xl text-white">
                 {text}
             </span>
         </div>
