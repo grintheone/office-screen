@@ -6,15 +6,15 @@ import Slider from "@/features/display/components/slider/Slider";
 const carouselItems = [
     {
         component: <Clock />,
-        duration: 3000  // 3 seconds display time
+        duration: 5000
     },
     {
         component: <ClockCard />,
-        duration: 5000  // 5 seconds display time
+        duration: 5000
     },
     {
         component: <ClockBirthdays />,
-        duration: 4000  // 4 seconds display time
+        duration: 5000
     }
 ];
 
