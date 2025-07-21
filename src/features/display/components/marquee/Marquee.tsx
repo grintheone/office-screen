@@ -1,45 +1,41 @@
-import TextBlock from "@/features/display/components/marquee/TextBlock";
-import TypeBlock from "@/features/display/components/marquee/TypeBlock";
-import { nanoid } from "@reduxjs/toolkit";
 import Marq from "react-fast-marquee";
+import CurrencyBlock from "@/features/display/components/marquee/CurrencyBlock";
+import InnerCurrencyBlock from "@/features/display/components/marquee/InnerCurrencyBlock";
+import NewsBlock from "@/features/display/components/marquee/NewsBlock";
+import TrafficBlock from "@/features/display/components/marquee/TrafficBlock";
+import WeatherBlock from "@/features/display/components/marquee/WeatherBlock";
+import type { ParserDataItem } from "@/hooks/useParserData";
 
-export type MarqueTypeBlock = "news" | "traffic" | "weather"
+type Props = {
+    data: ParserDataItem[];
+};
 
-export interface IMarque {
-    type: MarqueTypeBlock;
-    text: string;
+function getBlockById(item: ParserDataItem) {
+    switch (item._id) {
+        case "traffic":
+            return <TrafficBlock {...item} />;
+        case "lenta":
+            return <NewsBlock {...item} />;
+        case "weather":
+            return <WeatherBlock {...item} />;
+        case "currency":
+            return <CurrencyBlock {...item} />;
+        case "currency-inner":
+            return <InnerCurrencyBlock {...item} />;
+    }
 }
 
-const data: IMarque[] = [
-    {
-        type: "news",
-        text: "Найдены обломки пропавшего в Хабаровском крае вертолета Ми-8"
-    },
-    {
-        type: "news",
-        text: "Видеосервис Rutube объявил о новом алгоритме монетизации каналов"
-    },
-    {
-        type: "traffic",
-        text: "Дороги загружены на 30%"
-    },
-    {
-        type: "weather",
-        text: "+26 ясно"
-    },
-]
+function Marquee({ data }: Props) {
+    console.log(data, "marquee");
+    if (data.length === 0) return null;
 
-function Marquee() {
+    const renderItems = data.map((item) => getBlockById(item));
+
     return (
-        <Marq className="z-50" autoFill={true} gradient gradientColor="#000">
-            {data.map(item => (
-                <div key={nanoid()} className="flex">
-                    <TypeBlock type={item.type} />
-                    <TextBlock text={item.text} />
-                </div>
-            ))}
+        <Marq className="z-50" autoFill={true} gradient gradientColor="#000" speed={40}>
+            {renderItems}
         </Marq>
-    )
+    );
 }
 
-export default Marquee
+export default Marquee;

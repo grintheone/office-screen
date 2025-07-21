@@ -7,6 +7,16 @@ body {
     font-family: 'Gotham Pro', sans-serif;
 }
 
+/* Ticker alignment */
+.rfm-initial-child-container {
+    align-items: flex-start !important;
+}
+
+.rfm-child {
+    align-self: flex-start !important;
+}
+
+
 @theme {
     /* Animations */
     --animate-half-spin: half-spin .2s ease-in-out forwards;

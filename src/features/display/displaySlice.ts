@@ -4,7 +4,7 @@ export const EffectSelectShema = ["none", "confetti", "fireworks"] as const
 export type VideoEffects = typeof EffectSelectShema[number]
 
 interface DisplayState {
-    activeEffect: VideoEffects
+    activeEffect: VideoEffects,
 }
 
 const initialState: DisplayState = {

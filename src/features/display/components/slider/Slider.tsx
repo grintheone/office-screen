@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react";
 
 interface ISlider {
-    type: "main" | "clock",
+    type: "main" | "clock";
     slides: {
-        component: React.ReactNode,
-        duration: number  // duration of the display
-    }[]
+        component: React.ReactNode;
+        duration: number; // duration of the display
+    }[];
 }
 
 function Slider({ type, slides }: ISlider) {
@@ -22,7 +22,11 @@ function Slider({ type, slides }: ISlider) {
     }, [currentIndex, slides]);
 
     if (slides.length === 0) {
-        return <div className="absolute inset-0 flex items-center justify-center text-4xl text-white">Нечего отображать</div>;
+        return (
+            <div className="absolute inset-0 flex items-center justify-center text-4xl text-white">
+                Нечего отображать
+            </div>
+        );
     }
 
     let content;
@@ -32,21 +36,19 @@ function Slider({ type, slides }: ISlider) {
             <div className="absolute inset-0 flex items-center justify-center">
                 {slides[currentIndex].component}
             </div>
-        )
+        );
     } else {
-        content = (
-            slides.map((item, index) => (
-                <div
-                    key={index}
-                    className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
-                >
-                    {item.component}
-                </div>
-            ))
-        )
+        content = slides.map((item, index) => (
+            <div
+                key={index}
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${index === currentIndex ? "opacity-100" : "opacity-0"}`}
+            >
+                {item.component}
+            </div>
+        ));
     }
 
     return content;
 }
 
-export default Slider
+export default Slider;
