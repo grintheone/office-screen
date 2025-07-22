@@ -34,7 +34,7 @@ function RatesCard({ currency, currencyInner }: Props) {
                     <div className="z-20">
                         <div className="text-4xl">USD</div>
                         <div className="text-7xl">
-                            {currencyInner.data[0].rates["RUB"].rate.toFixed(2)}
+                            {currencyInner.data[1].rates["RUB"].rate.toFixed(2)}
                         </div>
                     </div>
                     <div className="absolute inset-0 size-full bg-linear-to-bl to-black rounded-xl"></div>
@@ -46,7 +46,7 @@ function RatesCard({ currency, currencyInner }: Props) {
                     <div className="z-20">
                         <div className="text-4xl">EUR</div>
                         <div className="text-7xl">
-                            {currencyInner.data[1].rates["RUB"].rate.toFixed(2)}
+                            {currencyInner.data[0].rates["RUB"].rate.toFixed(2)}
                         </div>
                     </div>
                     <div className="absolute inset-0 size-full bg-linear-to-bl to-black rounded-xl"></div>

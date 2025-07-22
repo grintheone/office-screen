@@ -24,7 +24,7 @@ function InnerCurrencyBlock(item: ParserDataItem) {
                             </div>
                         </div>
                     );
-                })}
+                }).reverse()}
             </div>
             <div className="text-shadow-xs bg-white text-xl text-center">
                 ВНУТРЕННИЙ КУРС
