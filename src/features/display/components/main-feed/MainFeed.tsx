@@ -1,56 +1,50 @@
-import BirthdayCard from "@/features/display/components/cards/BirthdayCard";
-import HolidayCard from "@/features/display/components/cards/HolidayCard";
-import QuoteCard from "@/features/display/components/cards/QuoteCard";
-import InfoCard from "@/features/display/components/cards/InfoCard";
-import Slider from "@/features/display/components/slider/Slider";
+import { useMemo } from "react";
+// import BirthdayCard from "@/features/display/components/cards/BirthdayCard";
+// import HolidayCard from "@/features/display/components/cards/HolidayCard";
+// import InfoCard from "@/features/display/components/cards/InfoCard";
+// import QuoteCard from "@/features/display/components/cards/QuoteCard";
 import RatesCard from "@/features/display/components/cards/RatesCard";
 import WeatherCard from "@/features/display/components/cards/WeatherCard";
+import Slider, { type Slide } from "@/features/display/components/slider/Slider";
+import type { ParserDataItem } from "@/hooks/useParserData";
 
-const carouselSlides = [
-    {
-        component: (
-            <WeatherCard />
-        ),
-        duration: 18000
-    },
-    {
-        component: (
-            <RatesCard />
-        ),
-        duration: 10000
-    },
-    {
-        component: (
-            <BirthdayCard />
-        ),
-        duration: 10000
-    },
-    {
-        component: (
-            <HolidayCard />
-        ),
-        duration: 10000
-    },
-    {
-        component: (
-            <InfoCard />
-        ),
-        duration: 10000
-    },
-    {
-        component: (
-            <QuoteCard />
-        ),
-        duration: 8000
-    },
-];
 
-function MainFeed() {
+function assembleParserSlides(parserData: ParserDataItem[]) {
+    const slides: Slide[] = [];
+
+    const weatherData = parserData.find(item => item._id === "weather");
+    const currencyData = parserData.find(item => item._id === "currency");
+    const currencyInnerData = parserData.find(item => item._id === "currency-inner");
+
+    if (weatherData) {
+        slides.push({
+            component: <WeatherCard {...weatherData} />,
+            duration: 18000
+        })
+    }
+
+    if (currencyData || currencyInnerData) {
+        slides.push({
+            component: <RatesCard currency={currencyData} currencyInner={currencyInnerData} />,
+            duration: 10000
+        })
+    }
+
+    return slides;
+}
+
+type Props = {
+    parserData: ParserDataItem[];
+};
+
+function MainFeed({ parserData }: Props) {
+    const slides = useMemo(() => assembleParserSlides(parserData), [parserData]);
+
     return (
         <section className="grow basis-8/12 relative">
-            <Slider type="main" slides={carouselSlides} />
+            <Slider type="main" slides={slides} />
         </section>
-    )
+    );
 }
 
 export default MainFeed;

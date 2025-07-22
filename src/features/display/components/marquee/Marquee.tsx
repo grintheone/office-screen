@@ -26,7 +26,6 @@ function getBlockById(item: ParserDataItem) {
 }
 
 function Marquee({ data }: Props) {
-    console.log(data, "marquee");
     if (data.length === 0) return null;
 
     const renderItems = data.map((item) => getBlockById(item));

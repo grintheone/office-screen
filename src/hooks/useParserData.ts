@@ -16,7 +16,7 @@ const dbUrl = `http://${import.meta.env.VITE_DB_USER}:${import.meta.env.VITE_DB_
 
 export function useParserData() {
     const db = useDatabase(`${dbUrl}/main`, "main");
-    const [data, setData] = useState<ParserDataItem[]>([]);
+    const [data, setData] = useState<ParserDataItem[]>([])
 
     useEffect(() => {
         if (!db) return;
@@ -46,12 +46,10 @@ export function useParserData() {
                         (item) => item._id === change.id,
                     );
                     if (existingIndex >= 0) {
-                        // Update existing item
                         const updated = [...prev];
                         updated[existingIndex] = change.doc as ParserDataItem;
                         return updated;
                     } else {
-                        // Add new item
                         return [...prev, change.doc as ParserDataItem];
                     }
                 });

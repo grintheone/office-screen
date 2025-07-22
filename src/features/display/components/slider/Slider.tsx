@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 
+export type Slide = {
+    component: React.ReactNode;
+    duration: number; // duration of the display
+}
+
 interface ISlider {
     type: "main" | "clock";
-    slides: {
-        component: React.ReactNode;
-        duration: number; // duration of the display
-    }[];
+    slides: Slide[];
 }
 
 function Slider({ type, slides }: ISlider) {

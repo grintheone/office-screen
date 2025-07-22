@@ -11,7 +11,9 @@ function Display() {
         <BackgroundWrapper>
             <Marquee data={parserData} />
             <div className="absolute inset-0 z-10 w-full h-full flex">
-                <MainFeed />
+                <MainFeed
+                    parserData={parserData.filter((item) => item._id === "weather" || item._id === "currency" || item._id === "currency-inner")}
+                />
                 <ClockFeed />
             </div>
         </BackgroundWrapper>

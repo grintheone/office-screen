@@ -40,7 +40,7 @@ function WeatherBlock(item: ParserDataItem) {
         return null
     }
 
-    const temperature = item.data.main.temp > 0 ? `+${item.data.main.temp.toFixed(0)}` : item.data.main.temp.toFixed(0)
+    const temperature = item.data.main.temp > 0 ? `+${Math.round(item.data.main.temp)}°` : `${Math.round(item.data.main.temp)}°`
     const condition = item.data.weather[0].description
 
     return (
