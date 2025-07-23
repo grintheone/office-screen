@@ -6,6 +6,7 @@ import { ru } from "react-day-picker/locale";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import ImageIcon from "@/assets/icons/image.svg?react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -33,13 +34,17 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
+import { addNewDocByType } from "@/features/admin/adminSlice";
 import { EffectSelectShema } from "@/features/display/displaySlice";
+import { selectTheme } from "@/features/settings/settingsSlice";
+import { useAdminService } from "@/hooks/useAdminService";
+import { cn } from "@/lib/utils";
+import type { HolidayDocument } from "@/services/AdminService";
 
 // Define accepted MIME types
 const ACCEPTER_IMAGE_TYPES = [
-    'image/jpeg',      // .jpeg, .jpg
-    'image/png',       // .png
+    "image/jpeg", // .jpeg, .jpg
+    "image/png", // .png
 ];
 
 const maxFileSize = 10 * 1024 * 1024; // 10MB
@@ -51,22 +56,24 @@ const holidaySchema = z.object({
     }),
     image: z
         .any()
-        .refine((files) => files?.length === 1, 'Добавьте фото/видео')
+        .refine((files) => files?.length === 1, "Добавьте фото/видео")
         .refine(
             (files) => files[0]?.size <= maxFileSize,
-            `Размер не должен превышеать ${maxFileSize / 1024 / 1024}MB`
+            `Размер не должен превышеать ${maxFileSize / 1024 / 1024}MB`,
         )
         .refine(
             (files) => ACCEPTER_IMAGE_TYPES.includes(files[0]?.type),
-            `Доступные медиа форматы: ${[
-                '.jpg', '.jpeg', '.png',
-            ].join(', ')}`
+            `Доступные медиа форматы: ${[".jpg", ".jpeg", ".png"].join(", ")}`,
         ),
     effect: z.enum(EffectSelectShema),
     showEverywhere: z.boolean(),
 });
 
 function HolidayForm() {
+    const dispatch = useAppDispatch();
+    const org = useAppSelector(selectTheme);
+    const admin = useAdminService();
+
     const [open, setOpen] = useState(false);
     const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -81,10 +88,31 @@ function HolidayForm() {
         },
     });
 
-    function onSubmit(values: z.infer<typeof holidaySchema>) {
-        console.log(values);
-        toast.success("Праздник успешно добавлен");
-        closeRef.current?.click();
+    async function onSubmit(values: z.infer<typeof holidaySchema>) {
+        try {
+            if (!org) {
+                throw new Error("Не выбрана организация");
+            }
+
+            const document: Omit<HolidayDocument, "_id" | "_rev" | "type"> = {
+                title: values.title,
+                displayDate: values.displayDate.toISOString(),
+                org: values.showEverywhere ? "all" : org,
+                effect: values.effect,
+                image: "",
+            };
+
+            const res = await admin?.createDocument("holiday", document);
+            dispatch(
+                addNewDocByType({ type: "holiday", doc: res as HolidayDocument }),
+            );
+            toast.success("Праздник успешно добавлен");
+        } catch (err) {
+            console.log(err);
+            toast.error("Не удалось добавить праздник");
+        } finally {
+            closeRef.current?.click();
+        }
     }
 
     return (
@@ -167,15 +195,9 @@ function HolidayForm() {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                <SelectItem value="none">
-                                                    Без эффекта
-                                                </SelectItem>
-                                                <SelectItem value="fireworks">
-                                                    Салют
-                                                </SelectItem>
-                                                <SelectItem value="confetti">
-                                                    Конфетти
-                                                </SelectItem>
+                                                <SelectItem value="none">Без эффекта</SelectItem>
+                                                <SelectItem value="fireworks">Салют</SelectItem>
+                                                <SelectItem value="confetti">Конфетти</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FormDescription>

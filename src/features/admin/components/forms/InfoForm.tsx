@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import MediaIcon from "@/assets/icons/media.svg?react";
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
@@ -25,8 +26,11 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { addNewDocByType } from "@/features/admin/adminSlice";
 import { EffectSelectShema } from "@/features/display/displaySlice";
-
+import { selectTheme } from "@/features/settings/settingsSlice";
+import { useAdminService } from "@/hooks/useAdminService";
+import type { InfoDocument } from "@/services/AdminService";
 
 // Define accepted MIME types
 const acceptedImageTypes = [
@@ -70,6 +74,10 @@ const extraSchema = z.object({
 });
 
 function InfoForm() {
+    const dispatch = useAppDispatch();
+    const org = useAppSelector(selectTheme);
+    const admin = useAdminService();
+
     const closeRef = useRef<HTMLButtonElement>(null);
 
     const form = useForm<z.infer<typeof extraSchema>>({
@@ -83,10 +91,29 @@ function InfoForm() {
         },
     });
 
-    function onSubmit(values: z.infer<typeof extraSchema>) {
-        console.log(values);
-        toast.success("Событие успешно добавлено");
-        closeRef.current?.click();
+    async function onSubmit(values: z.infer<typeof extraSchema>) {
+        try {
+            if (!org) {
+                throw new Error("Не выбрана организация");
+            }
+
+            const document: Omit<InfoDocument, "_id" | "_rev" | "type"> = {
+                text: values.text,
+                org: values.showEverywhere ? "all" : org,
+                effect: values.effect,
+                showNow: values.showNow,
+                media: "",
+            };
+
+            const res = await admin?.createDocument("info", document);
+            dispatch(addNewDocByType({ type: "info", doc: res as InfoDocument }));
+            toast.success("Событие успешно добавлено");
+        } catch (err) {
+            console.log(err);
+            toast.error("Не удалось добавить событие");
+        } finally {
+            closeRef.current?.click();
+        }
     }
 
     return (

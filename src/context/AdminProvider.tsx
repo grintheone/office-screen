@@ -6,10 +6,15 @@ export function AdminContextProvider({ children }: PropsWithChildren) {
     const [adminService, setAdminService] = useState<null | AdminService>(null);
 
     useEffect(() => {
-        const service = new AdminService('admin');
+        const service = new AdminService();
 
-        setAdminService(service);
-        service.startSync();
+        const initialSetup = async () => {
+            await service.startSync();
+            await service.setupIndexes()
+            setAdminService(service);
+        }
+
+        initialSetup()
 
         return () => {
             service.stopSync();

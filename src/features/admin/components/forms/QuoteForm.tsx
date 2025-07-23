@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import {
@@ -17,7 +18,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-
+import { addNewDocByType } from "@/features/admin/adminSlice";
+import { selectTheme } from "@/features/settings/settingsSlice";
+import { useAdminService } from "@/hooks/useAdminService";
+import type { QuoteDocument } from "@/services/AdminService";
 
 const quoteSchema = z.object({
     author: z.string(),
@@ -26,6 +30,10 @@ const quoteSchema = z.object({
 });
 
 function QuoteForm() {
+    const dispatch = useAppDispatch();
+    const org = useAppSelector(selectTheme);
+    const admin = useAdminService();
+
     const closeRef = useRef<HTMLButtonElement>(null);
 
     const form = useForm<z.infer<typeof quoteSchema>>({
@@ -37,10 +45,29 @@ function QuoteForm() {
         },
     });
 
-    function onSubmit(values: z.infer<typeof quoteSchema>) {
-        console.log(values);
-        toast.success("Цитата успешно добавлена");
-        closeRef.current?.click();
+    async function onSubmit(values: z.infer<typeof quoteSchema>) {
+        try {
+            if (!org) {
+                throw new Error("Не выбрана организация");
+            }
+
+            const document: Omit<QuoteDocument, "_id" | "_rev" | "type"> = {
+                author: values.author,
+                text: values.text,
+                org: values.showEverywhere ? "all" : org,
+            };
+
+            const res = await admin?.createDocument("quote", document);
+            dispatch(
+                addNewDocByType({ type: "quote", doc: res as QuoteDocument }),
+            );
+            toast.success("Цитата успешно добавлена");
+        } catch (err) {
+            console.log(err);
+            toast.error("Не удалось добавить цитату");
+        } finally {
+            closeRef.current?.click();
+        }
     }
 
     return (

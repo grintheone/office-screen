@@ -46,10 +46,6 @@ type Props = {
 function MainFeed({ parserData }: Props) {
     const slides = useMemo(() => assembleParserSlides(parserData), [parserData]);
 
-    const admin = useAdminService();
-    const db = admin.getLocalDb();
-    console.log(db.allDocs());
-
     return (
         <section className="grow basis-8/12 relative">
             <Slider type="main" slides={slides} />

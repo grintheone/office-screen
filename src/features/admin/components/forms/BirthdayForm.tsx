@@ -6,6 +6,7 @@ import { ru } from "react-day-picker/locale";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import PersonIcon from "@/assets/icons/person.svg?react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -26,7 +27,11 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
+import { addNewDocByType } from "@/features/admin/adminSlice";
+import { selectTheme } from "@/features/settings/settingsSlice";
+import { useAdminService } from "@/hooks/useAdminService";
 import { cn } from "@/lib/utils";
+import type { BirthdayDocument } from "@/services/AdminService";
 
 const birthdaySchema = z.object({
     name: z.string().min(1, { message: "Заполните поле" }),
@@ -35,10 +40,15 @@ const birthdaySchema = z.object({
     }),
     photo: z.instanceof(FileList).optional(),
     showEverywhere: z.boolean(),
+    showInMainFeed: z.boolean(),
 });
 
 function BirthdayForm() {
-    const [open, setOpen] = useState(false)
+    const dispatch = useAppDispatch();
+    const org = useAppSelector(selectTheme);
+    const admin = useAdminService();
+
+    const [open, setOpen] = useState(false);
     const closeRef = useRef<HTMLButtonElement>(null);
 
     const form = useForm<z.infer<typeof birthdaySchema>>({
@@ -47,14 +57,36 @@ function BirthdayForm() {
             name: "",
             displayDate: undefined,
             showEverywhere: false,
+            showInMainFeed: false,
             photo: undefined,
         },
     });
 
-    function onSubmit(values: z.infer<typeof birthdaySchema>) {
-        console.log(values);
-        toast.success("День рождения успешно добавлено");
-        closeRef.current?.click()
+    async function onSubmit(values: z.infer<typeof birthdaySchema>) {
+        try {
+            if (!org) {
+                throw new Error("Не выбрана организация");
+            }
+
+            const document: Omit<BirthdayDocument, "_id" | "_rev" | "type"> = {
+                name: values.name,
+                displayDate: values.displayDate.toISOString(),
+                org: values.showEverywhere ? "all" : org,
+                showInMainFeed: values.showInMainFeed,
+                photo: "",
+            };
+
+            const res = await admin?.createDocument("birthday", document);
+            dispatch(
+                addNewDocByType({ type: "birthday", doc: res as BirthdayDocument }),
+            );
+            toast.success("День рождение успешно добавлено");
+        } catch (err) {
+            console.log(err);
+            toast.error("Не удалось добавить день рождение");
+        } finally {
+            closeRef.current?.click();
+        }
     }
 
     return (
@@ -106,8 +138,8 @@ function BirthdayForm() {
                                                 locale={ru}
                                                 selected={field.value}
                                                 onSelect={(date) => {
-                                                    field.onChange(date)
-                                                    setOpen(false)
+                                                    field.onChange(date);
+                                                    setOpen(false);
                                                 }}
                                                 captionLayout="label"
                                             />
@@ -160,6 +192,26 @@ function BirthdayForm() {
                                 <FormLabel>Показывать везде</FormLabel>
                                 <FormDescription>
                                     Включите чтобы отобразить на экранах в каждом офисе
+                                </FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="showInMainFeed"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
+                            <div className="space-y-1">
+                                <FormLabel>Отображать в основной ленте</FormLabel>
+                                <FormDescription>
+                                    Включите чтобы отобразить в основной ленте (только с фото)
                                 </FormDescription>
                             </div>
                             <FormControl>
