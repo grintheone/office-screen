@@ -1,27 +1,24 @@
 import PouchDB from "pouchdb";
-import PouchDBFind from "pouchdb-find";
 
-PouchDB.plugin(PouchDBFind);
+export const remoteUrl = `http://${import.meta.env.VITE_DB_USER}:${import.meta.env.VITE_DB_PASSWORD}@${window.location.host.includes("localhost")
+    ? import.meta.env.VITE_DB_HOST_DEV
+    : window.location.host
+    }/db`;
 
-interface SyncServiceOptions {
-    remoteDbUrl: string;
-    localDbName: string;
-}
+export type AvailableServiceName = "main" | "admin"
 
 class SyncService {
+    private serviceName: string;
     private localDb: PouchDB.Database;
     private remoteDb: PouchDB.Database;
     private syncHandler: PouchDB.Replication.Sync<{}> | null = null;
 
-    constructor(options: SyncServiceOptions) {
-        // Initialize local PouchDB
-        this.localDb = new PouchDB(options.localDbName);
-
-        // Initialize remote CouchDB with authentication if needed
-        this.remoteDb = new PouchDB(options.remoteDbUrl);
+    constructor(serviceName: AvailableServiceName) {
+        this.serviceName = serviceName.toUpperCase();
+        this.localDb = new PouchDB(serviceName);
+        this.remoteDb = new PouchDB(`${remoteUrl}/${serviceName}`);
     }
 
-    // Start synchronization
     public startSync(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.syncHandler = this.localDb
@@ -31,20 +28,19 @@ class SyncService {
                     timeout: false,
                 })
                 .on("change", (info) => {
-                    console.log("Sync change:", info);
+                    console.log(`${this.serviceName} change:`, info);
                 })
                 .on("paused", () => {
-                    console.log("Sync paused: client up-to date");
+                    console.log(`${this.serviceName} paused: client up-to date`);
                     resolve();
                 })
                 .on("error", (err) => {
-                    console.error("Sync error:", err);
+                    console.error(`${this.serviceName} error:`, err);
                     reject(err);
                 });
         });
     }
 
-    // Stop synchronization
     public stopSync(): void {
         if (this.syncHandler) {
             this.syncHandler.cancel();
@@ -52,12 +48,10 @@ class SyncService {
         }
     }
 
-    // Get the local database instance
     public getLocalDb(): PouchDB.Database {
         return this.localDb;
     }
 
-    // Destroy databases and cleanup
     public async destroy(): Promise<void> {
         this.stopSync();
         await this.localDb.close();

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDatabase } from "@/hooks/useDatabase";
+import { useParserDb } from "@/hooks/useParserDb";
 
 export type ParserDataType = "currency" | "currency-inner" | "lenta" | "traffic" | "weather"
 
@@ -9,13 +9,8 @@ export interface ParserDataItem {
     data?: unknown
 }
 
-const dbUrl = `http://${import.meta.env.VITE_DB_USER}:${import.meta.env.VITE_DB_PASSWORD}@${window.location.host.includes("localhost")
-    ? import.meta.env.VITE_DB_HOST_DEV
-    : window.location.host
-    }/db`;
-
 export function useParserData() {
-    const db = useDatabase(`${dbUrl}/main`, "main");
+    const db = useParserDb()
     const [data, setData] = useState<ParserDataItem[]>([])
 
     useEffect(() => {

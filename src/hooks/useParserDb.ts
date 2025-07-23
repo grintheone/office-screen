@@ -1,17 +1,11 @@
 import { useEffect, useState } from 'react';
 import SyncService from '@/services/SyncService';
 
-export function useDatabase(
-    remoteUrl: string,
-    localDbName: string,
-) {
+export function useParserDb() {
     const [syncService, setSyncService] = useState<SyncService | null>(null);
 
     useEffect(() => {
-        const service = new SyncService({
-            remoteDbUrl: remoteUrl,
-            localDbName,
-        });
+        const service = new SyncService('main');
 
         setSyncService(service);
         service.startSync()
@@ -20,7 +14,7 @@ export function useDatabase(
             service.stopSync();
             service.destroy();
         };
-    }, [remoteUrl, localDbName]);
+    }, []);
 
     return syncService?.getLocalDb() || null
 }

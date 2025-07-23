@@ -8,16 +8,16 @@ import {
 import type { ParserDataItem } from "@/hooks/useParserData";
 
 type Props = {
-    currency: ParserDataItem | undefined;
-    currencyInner: ParserDataItem | undefined;
+    currency: ParserDataItem
+    currencyInner: ParserDataItem
 };
 
 function RatesCard({ currency, currencyInner }: Props) {
-    if (!isCurrencyRates(currency?.data)) {
+    if (!isCurrencyRates(currency.data)) {
         return null;
     }
 
-    if (!isCurrencyTuple(currencyInner?.data)) {
+    if (!isCurrencyTuple(currencyInner.data)) {
         return null;
     }
 
