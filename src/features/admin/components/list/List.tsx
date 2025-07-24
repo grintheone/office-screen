@@ -8,14 +8,14 @@ import {
     type AdminContentTypes,
     selectAllDocsByType,
     setAllDocsByType,
-    setModalType,
+    setFormData
 } from "@/features/admin/adminSlice";
 import BirthdayCard from "@/features/admin/components/cards/BirthdayCard";
 import ClockCard from "@/features/admin/components/cards/ClockCard";
 import HolidayCard from "@/features/admin/components/cards/HolidayCard";
 import InfoCard from "@/features/admin/components/cards/InfoCard";
 import QuoteCard from "@/features/admin/components/cards/QuoteCard";
-import { selectTheme } from "@/features/settings/settingsSlice";
+import { selectTheme, type Theme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import type { AnyDocument, BirthdayDocument, ClockDocument, HolidayDocument, InfoDocument, QuoteDocument } from "@/services/AdminService";
 
@@ -45,6 +45,60 @@ function displayCardsByType<T extends AdminContentTypes>(type: T, docs: AnyDocum
                 return null;
         }
     })
+}
+
+function getInitialFormDataByType(type: AdminContentTypes, org: Theme) {
+    switch (type) {
+        case "info":
+            return {
+                _id: new Date().toISOString(),
+                org,
+                type,
+                text: "",
+                effect: "none",
+                showNow: true,
+                media: ""
+            } as InfoDocument
+        case "holiday":
+            return {
+                _id: new Date().toISOString(),
+                org,
+                type,
+                title: "",
+                displayDate: "",
+                effect: "none",
+                image: ""
+            } as HolidayDocument
+        case "quote":
+            return {
+                _id: new Date().toISOString(),
+                org,
+                type,
+                author: "",
+                text: ""
+            } as QuoteDocument
+        case "birthday":
+            return {
+                _id: new Date().toISOString(),
+                org,
+                type,
+                name: "",
+                displayDate: "",
+                showInMainFeed: false,
+                photo: "",
+            } as BirthdayDocument
+        case "clock":
+            return {
+                _id: new Date().toISOString(),
+                org,
+                type,
+                text: "",
+                showNow: true,
+                image: ""
+            } as ClockDocument
+    }
+
+    return null
 }
 
 function List({ type, name }: IList) {
@@ -90,7 +144,7 @@ function List({ type, name }: IList) {
                 <DialogTrigger asChild>
                     <Button
                         className="text-lg"
-                        onClick={() => dispatch(setModalType(type))}
+                        onClick={() => dispatch(setFormData(getInitialFormDataByType(type, org as Theme)))}
                     >
                         Добавить
                     </Button>

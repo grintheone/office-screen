@@ -34,7 +34,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { addNewDocByType } from "@/features/admin/adminSlice";
+import { addNewDocByType, deleteDocByType, updateDocByType } from "@/features/admin/adminSlice";
 import { EffectSelectShema } from "@/features/display/displaySlice";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
@@ -69,7 +69,7 @@ const holidaySchema = z.object({
     showEverywhere: z.boolean(),
 });
 
-function HolidayForm() {
+function HolidayForm(doc: HolidayDocument) {
     const dispatch = useAppDispatch();
     const org = useAppSelector(selectTheme);
     const admin = useAdminService();
@@ -80,44 +80,101 @@ function HolidayForm() {
     const form = useForm<z.infer<typeof holidaySchema>>({
         resolver: zodResolver(holidaySchema),
         defaultValues: {
-            title: "",
-            displayDate: undefined,
-            effect: "none",
-            showEverywhere: false,
+            title: doc.title,
+            displayDate: doc.displayDate === "" ? undefined : new Date(doc.displayDate),
+            effect: doc.effect,
+            showEverywhere: doc.org === "all",
             image: [] as File[],
         },
     });
 
-    async function onSubmit(values: z.infer<typeof holidaySchema>) {
+    async function onSubmitCreate(values: z.infer<typeof holidaySchema>) {
         try {
             if (!org) {
                 throw new Error("Не выбрана организация");
             }
 
-            const document: Omit<HolidayDocument, "_id" | "_rev" | "type"> = {
+            const document: HolidayDocument = {
+                ...doc,
                 title: values.title,
                 displayDate: values.displayDate.toISOString(),
                 org: values.showEverywhere ? "all" : org,
                 effect: values.effect,
                 image: "",
-            };
+            }
 
-            const res = await admin?.createDocument("holiday", document);
-            dispatch(
-                addNewDocByType({ type: "holiday", doc: res as HolidayDocument }),
-            );
-            toast.success("Праздник успешно добавлен");
+            const res = await admin?.createDocument(document);
+            if (res) {
+                dispatch(
+                    addNewDocByType({ type: document.type, doc: res }),
+                );
+                toast.success("Праздник успешно добавлен");
+            }
+
         } catch (err) {
-            console.log(err);
+            console.log(err)
             toast.error("Не удалось добавить праздник");
         } finally {
             closeRef.current?.click();
         }
     }
 
+    async function onSubmitUpdate(values: z.infer<typeof holidaySchema>) {
+        try {
+            if (!org) {
+                throw new Error("Не выбрана организация");
+            }
+
+            const document: HolidayDocument = {
+                ...doc,
+                title: values.title,
+                displayDate: values.displayDate.toISOString(),
+                org: values.showEverywhere ? "all" : org,
+                effect: values.effect,
+                image: "",
+            }
+
+            const res = await admin?.updateDocument(document);
+            if (res) {
+                dispatch(
+                    updateDocByType({ type: document.type, doc: res }),
+                );
+                toast.success("Праздник успешно отредактирован");
+            }
+        } catch (err) {
+            console.log(err)
+            toast.error("Не удалось отредактировать праздник");
+        } finally {
+            closeRef.current?.click();
+        }
+    }
+
+    async function handleDelete() {
+        if (!doc._rev) return
+
+        try {
+            const res = await admin?.deleteDocument(doc._id, doc._rev)
+
+            if (res) {
+                dispatch(
+                    deleteDocByType({ type: doc.type, id: res.id }),
+                );
+                toast.success("Праздник успешно удален");
+            }
+        } catch (err) {
+            console.log(err)
+            toast.error("Не удалось удалить праздник");
+        } finally {
+            closeRef.current?.click();
+        }
+    }
+
+
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+                onSubmit={form.handleSubmit((values) => doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values))}
+                className="space-y-4">
                 <div className="flex justify-between gap-8">
                     <div className="space-y-4">
                         <FormField
@@ -187,7 +244,7 @@ function HolidayForm() {
                                         <FormLabel>Эффект</FormLabel>
                                         <Select
                                             onValueChange={field.onChange}
-                                            defaultValue={"none"}
+                                            defaultValue={doc.effect}
                                         >
                                             <FormControl>
                                                 <SelectTrigger>
@@ -260,9 +317,20 @@ function HolidayForm() {
                     )}
                 />
                 <DialogFooter>
-                    <Button className="text-lg" type="submit">
-                        Добавить
-                    </Button>
+                    {doc._rev ? (
+                        <>
+                            <Button className="text-lg" type="button" onClick={handleDelete}>
+                                Удалить
+                            </Button>
+                            <Button className="text-lg" type="submit">
+                                Изменить
+                            </Button>
+                        </>
+                    ) :
+                        <Button className="text-lg" type="submit">
+                            Добавить
+                        </Button>
+                    }
                     <DialogClose ref={closeRef} className="hidden" />
                 </DialogFooter>
             </form>

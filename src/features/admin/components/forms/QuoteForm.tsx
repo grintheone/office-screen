@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { addNewDocByType } from "@/features/admin/adminSlice";
+import { addNewDocByType, deleteDocByType, updateDocByType } from "@/features/admin/adminSlice";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import type { QuoteDocument } from "@/services/AdminService";
@@ -29,7 +29,7 @@ const quoteSchema = z.object({
     showEverywhere: z.boolean(),
 });
 
-function QuoteForm() {
+function QuoteForm(doc: QuoteDocument) {
     const dispatch = useAppDispatch();
     const org = useAppSelector(selectTheme);
     const admin = useAdminService();
@@ -39,32 +39,85 @@ function QuoteForm() {
     const form = useForm<z.infer<typeof quoteSchema>>({
         resolver: zodResolver(quoteSchema),
         defaultValues: {
-            author: "",
-            text: "",
-            showEverywhere: false,
+            author: doc.author,
+            text: doc.text,
+            showEverywhere: doc.org === "all",
         },
     });
 
-    async function onSubmit(values: z.infer<typeof quoteSchema>) {
+    async function onSubmitCreate(values: z.infer<typeof quoteSchema>) {
         try {
             if (!org) {
                 throw new Error("Не выбрана организация");
             }
 
-            const document: Omit<QuoteDocument, "_id" | "_rev" | "type"> = {
+            const document: QuoteDocument = {
+                ...doc,
                 author: values.author,
                 text: values.text,
                 org: values.showEverywhere ? "all" : org,
-            };
+            }
 
-            const res = await admin?.createDocument("quote", document);
-            dispatch(
-                addNewDocByType({ type: "quote", doc: res as QuoteDocument }),
-            );
-            toast.success("Цитата успешно добавлена");
+            const res = await admin?.createDocument(document);
+            if (res) {
+                dispatch(
+                    addNewDocByType({ type: document.type, doc: res }),
+                );
+                toast.success("Цитата успешно добавлена");
+            }
+
         } catch (err) {
-            console.log(err);
+            console.log(err)
             toast.error("Не удалось добавить цитату");
+        } finally {
+            closeRef.current?.click();
+        }
+    }
+
+    async function onSubmitUpdate(values: z.infer<typeof quoteSchema>) {
+        try {
+            if (!org) {
+                throw new Error("Не выбрана организация");
+            }
+
+            const document: QuoteDocument = {
+                ...doc,
+                author: values.author,
+                text: values.text,
+                org: values.showEverywhere ? "all" : org,
+            }
+
+            const res = await admin?.updateDocument(document);
+            if (res) {
+                dispatch(
+                    updateDocByType({ type: document.type, doc: res }),
+                );
+                toast.success("Цитата успешно отредактирована");
+            }
+
+        } catch (err) {
+            console.log(err)
+            toast.error("Не удалось отредактировать цитату");
+        } finally {
+            closeRef.current?.click();
+        }
+    }
+
+    async function handleDelete() {
+        if (!doc._rev) return
+
+        try {
+            const res = await admin?.deleteDocument(doc._id, doc._rev)
+
+            if (res) {
+                dispatch(
+                    deleteDocByType({ type: doc.type, id: res.id }),
+                );
+                toast.success("День рождение успешно удалено");
+            }
+        } catch (err) {
+            console.log(err)
+            toast.error("Не удалось удалить день рождение");
         } finally {
             closeRef.current?.click();
         }
@@ -72,7 +125,9 @@ function QuoteForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+                onSubmit={form.handleSubmit((values) => doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values))}
+                className="space-y-4">
                 <FormField
                     control={form.control}
                     name="author"
@@ -120,9 +175,20 @@ function QuoteForm() {
                     )}
                 />
                 <DialogFooter>
-                    <Button className="text-lg" type="submit">
-                        Добавить
-                    </Button>
+                    {doc._rev ? (
+                        <>
+                            <Button className="text-lg" type="button" onClick={handleDelete}>
+                                Удалить
+                            </Button>
+                            <Button className="text-lg" type="submit">
+                                Изменить
+                            </Button>
+                        </>
+                    ) :
+                        <Button className="text-lg" type="submit">
+                            Добавить
+                        </Button>
+                    }
                     <DialogClose ref={closeRef} className="hidden" />
                 </DialogFooter>
             </form>

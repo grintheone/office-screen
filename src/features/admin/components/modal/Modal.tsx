@@ -5,8 +5,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import {
-    type AdminContentTypes,
-    selectModalType,
+    selectFormData
 } from "@/features/admin/adminSlice";
 import BirthdayForm from "@/features/admin/components/forms/BirthdayForm";
 import ClockForm from "@/features/admin/components/forms/ClockForm";
@@ -14,53 +13,58 @@ import HolidayForm from "@/features/admin/components/forms/HolidayForm";
 import InfoForm from "@/features/admin/components/forms/InfoForm";
 import QuoteForm from "@/features/admin/components/forms/QuoteForm";
 import { selectTheme } from "@/features/settings/settingsSlice";
+import type { AnyDocument, BirthdayDocument, ClockDocument, HolidayDocument, InfoDocument, QuoteDocument } from "@/services/AdminService";
 
-function getModalTitleByType(type: AdminContentTypes) {
-    switch (type) {
+function getModalTitleByType(formData: AnyDocument) {
+    const firstWord = formData._rev ? "Изменить" : "Добавить"
+
+    switch (formData.type) {
         case "birthday":
-            return "Добавить день рождение";
+            return `${firstWord} день рождение`;
         case "holiday":
-            return "Добавить праздник";
+            return `${firstWord} праздник`;
         case "info":
-            return "Добавить событие/оборудование";
+            return `${firstWord} событие/оборудование`;
         case "quote":
-            return "Добавить цитату";
+            return `${firstWord} цитату`;
         case "clock":
-            return "Добавить элемент";
+            return `${firstWord} элемент`;
     }
+
+
 }
 
-function getModalFormByType(type: AdminContentTypes) {
-    switch (type) {
+function getModalFormByType(formData: AnyDocument) {
+    switch (formData.type) {
         case "birthday":
-            return <BirthdayForm />;
+            return <BirthdayForm {...formData as BirthdayDocument} />;
         case "holiday":
-            return <HolidayForm />;
+            return <HolidayForm {...formData as HolidayDocument} />;
         case "info":
-            return <InfoForm />;
+            return <InfoForm {...formData as InfoDocument} />;
         case "quote":
-            return <QuoteForm />;
+            return <QuoteForm {...formData as QuoteDocument} />;
         case "clock":
-            return <ClockForm />;
+            return <ClockForm {...formData as ClockDocument} />;
     }
 }
 
 function Modal() {
     const org = useAppSelector(selectTheme);
-    const modalType = useAppSelector(selectModalType);
+    const formData = useAppSelector(selectFormData);
 
-    if (!modalType) return null;
+    if (!formData) return null;
 
     return (
         <DialogContent
-            className={`${org}-theme ${modalType === "holiday" || modalType === "info" ? "sm:max-w-4xl" : "sm:max-w-3xl"}`}
+            className={`${org}-theme ${formData.type === "holiday" || formData.type === "info" ? "sm:max-w-4xl" : "sm:max-w-3xl"}`}
         >
             <DialogHeader>
                 <DialogTitle className="text-2xl">
-                    {getModalTitleByType(modalType)}
+                    {getModalTitleByType(formData)}
                 </DialogTitle>
             </DialogHeader>
-            {getModalFormByType(modalType)}
+            {getModalFormByType(formData)}
         </DialogContent>
     );
 }

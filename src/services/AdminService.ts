@@ -67,21 +67,32 @@ class AdminService extends SyncService {
         }
     }
 
-    async createDocument<T extends AnyDocument>(
-        type: AdminContentTypes,
-        data: Omit<T, "_id" | "_rev" | "type">,
-    ): Promise<T> {
-        const document = {
-            _id: new Date().toISOString(),
-            type,
-            ...data,
-        };
-
+    async createDocument<T extends AnyDocument>(document: T): Promise<T> {
         try {
             const response = await this.getLocalDb().put(document);
             return { ...document, _rev: response.rev } as T;
         } catch (error) {
             console.error("Document creation failed:", error);
+            throw error;
+        }
+    }
+
+    async updateDocument<T extends AnyDocument>(document: T): Promise<T> {
+        try {
+            const response = await this.getLocalDb().put(document);
+            return { ...document, _rev: response.rev } as T;
+        } catch (error) {
+            console.error("Document update failed:", error);
+            throw error;
+        }
+    }
+
+    async deleteDocument(docId: string, docRev: string) {
+        try {
+            const res = await this.getLocalDb().remove(docId, docRev);
+            return { id: res.id }
+        } catch (error) {
+            console.error('Deletion failed:', error);
             throw error;
         }
     }

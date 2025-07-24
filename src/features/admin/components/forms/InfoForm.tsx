@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { addNewDocByType } from "@/features/admin/adminSlice";
+import { addNewDocByType, deleteDocByType, updateDocByType } from "@/features/admin/adminSlice";
 import { EffectSelectShema } from "@/features/display/displaySlice";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
@@ -73,7 +73,7 @@ const extraSchema = z.object({
     showEverywhere: z.boolean(),
 });
 
-function InfoForm() {
+function InfoForm(doc: InfoDocument) {
     const dispatch = useAppDispatch();
     const org = useAppSelector(selectTheme);
     const admin = useAdminService();
@@ -83,34 +83,90 @@ function InfoForm() {
     const form = useForm<z.infer<typeof extraSchema>>({
         resolver: zodResolver(extraSchema),
         defaultValues: {
-            text: "",
-            effect: "none",
-            showNow: true,
-            showEverywhere: false,
+            text: doc.text,
+            effect: doc.effect,
+            showNow: doc.showNow,
+            showEverywhere: doc.org === "all",
             media: [] as File[],
         },
     });
 
-    async function onSubmit(values: z.infer<typeof extraSchema>) {
+    async function onSubmitCreate(values: z.infer<typeof extraSchema>) {
         try {
             if (!org) {
                 throw new Error("Не выбрана организация");
             }
 
-            const document: Omit<InfoDocument, "_id" | "_rev" | "type"> = {
+            const document: InfoDocument = {
+                ...doc,
                 text: values.text,
-                org: values.showEverywhere ? "all" : org,
                 effect: values.effect,
                 showNow: values.showNow,
-                media: "",
-            };
+                org: values.showEverywhere ? "all" : org,
+                media: ""
+            }
 
-            const res = await admin?.createDocument("info", document);
-            dispatch(addNewDocByType({ type: "info", doc: res as InfoDocument }));
-            toast.success("Событие успешно добавлено");
+            const res = await admin?.createDocument(document);
+            if (res) {
+                dispatch(
+                    addNewDocByType({ type: document.type, doc: res }),
+                );
+                toast.success("Событие успешно добавлено");
+            }
+
         } catch (err) {
-            console.log(err);
+            console.log(err)
             toast.error("Не удалось добавить событие");
+        } finally {
+            closeRef.current?.click();
+        }
+    }
+
+    async function onSubmitUpdate(values: z.infer<typeof extraSchema>) {
+        try {
+            if (!org) {
+                throw new Error("Не выбрана организация");
+            }
+
+            const document: InfoDocument = {
+                ...doc,
+                text: values.text,
+                effect: values.effect,
+                showNow: values.showNow,
+                org: values.showEverywhere ? "all" : org,
+                media: ""
+            }
+
+            const res = await admin?.updateDocument(document);
+            if (res) {
+                dispatch(
+                    updateDocByType({ type: document.type, doc: res }),
+                );
+                toast.success("Событие успешно изменено");
+            }
+        } catch (err) {
+            console.log(err)
+            toast.error("Не удалось изменить событие");
+        } finally {
+            closeRef.current?.click();
+        }
+    }
+
+    async function handleDelete() {
+        if (!doc._rev) return
+
+        try {
+            const res = await admin?.deleteDocument(doc._id, doc._rev)
+
+            if (res) {
+                dispatch(
+                    deleteDocByType({ type: doc.type, id: res.id }),
+                );
+                toast.success("Событие успешно удалено");
+            }
+        } catch (err) {
+            console.log(err)
+            toast.error("Не удалось удалить событие");
         } finally {
             closeRef.current?.click();
         }
@@ -118,7 +174,9 @@ function InfoForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+                onSubmit={form.handleSubmit((values) => doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values))}
+                className="space-y-4">
                 <div className="flex justify-between gap-8">
                     <div className="space-y-4 grow">
                         <FormField
@@ -140,7 +198,7 @@ function InfoForm() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Эффект</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={"none"}>
+                                    <Select onValueChange={field.onChange} defaultValue={doc.effect}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue />
@@ -231,9 +289,20 @@ function InfoForm() {
                     )}
                 />
                 <DialogFooter>
-                    <Button className="text-lg" type="submit">
-                        Добавить
-                    </Button>
+                    {doc._rev ? (
+                        <>
+                            <Button className="text-lg" type="button" onClick={handleDelete}>
+                                Удалить
+                            </Button>
+                            <Button className="text-lg" type="submit">
+                                Изменить
+                            </Button>
+                        </>
+                    ) :
+                        <Button className="text-lg" type="submit">
+                            Добавить
+                        </Button>
+                    }
                     <DialogClose ref={closeRef} className="hidden" />
                 </DialogFooter>
             </form>

@@ -1,7 +1,7 @@
 import { useAppDispatch } from "@/app/hooks";
 import PersonIcon from "@/assets/icons/person.svg?react";
 import { DialogTrigger } from "@/components/ui/dialog";
-import { setCurrentModalItem } from "@/features/admin/adminSlice";
+import { setFormData } from "@/features/admin/adminSlice";
 import type { BirthdayDocument } from "@/services/AdminService";
 
 function BirthdayCard(doc: BirthdayDocument) {
@@ -13,7 +13,7 @@ function BirthdayCard(doc: BirthdayDocument) {
         >
             <DialogTrigger
                 className="flex justify-between items-center gap-4 text-sm size-full p-2"
-                onClick={() => dispatch(setCurrentModalItem(doc))}>
+                onClick={() => dispatch(setFormData(doc))}>
                 <div className="flex items-center gap-4">
                     <PersonIcon className="size-16 text-primary/50" />
                     <div>{doc.name}</div>

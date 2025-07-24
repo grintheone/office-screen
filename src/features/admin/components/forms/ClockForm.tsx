@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { addNewDocByType } from "@/features/admin/adminSlice";
+import { addNewDocByType, deleteDocByType, updateDocByType } from "@/features/admin/adminSlice";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import type { ClockDocument } from "@/services/AdminService";
@@ -49,7 +49,7 @@ const clockSchema = z.object({
     showEverywhere: z.boolean(),
 });
 
-function ClockForm() {
+function ClockForm(doc: ClockDocument) {
     const dispatch = useAppDispatch();
     const org = useAppSelector(selectTheme);
     const admin = useAdminService();
@@ -59,32 +59,87 @@ function ClockForm() {
     const form = useForm<z.infer<typeof clockSchema>>({
         resolver: zodResolver(clockSchema),
         defaultValues: {
-            text: "",
-            showNow: true,
-            showEverywhere: false,
+            text: doc.text,
+            showNow: doc.showNow,
+            showEverywhere: doc.org === "all",
             image: [] as File[],
         },
     });
 
-    async function onSubmit(values: z.infer<typeof clockSchema>) {
+    async function onSubmitCreate(values: z.infer<typeof clockSchema>) {
         try {
             if (!org) {
                 throw new Error("Не выбрана организация");
             }
 
-            const document: Omit<ClockDocument, "_id" | "_rev" | "type"> = {
+            const document: ClockDocument = {
+                ...doc,
                 text: values.text,
-                org: values.showEverywhere ? "all" : org,
                 showNow: values.showNow,
-                image: "",
-            };
+                org: values.showEverywhere ? "all" : org,
+                image: ""
+            }
 
-            const res = await admin?.createDocument("clock", document);
-            dispatch(addNewDocByType({ type: "clock", doc: res as ClockDocument }));
-            toast.success("Элемент успешно добавлен");
+            const res = await admin?.createDocument(document);
+            if (res) {
+                dispatch(
+                    addNewDocByType({ type: document.type, doc: res }),
+                );
+                toast.success("Событие успешно добавлено");
+            }
+
         } catch (err) {
-            console.log(err);
-            toast.error("Не удалось добавить элемент");
+            console.log(err)
+            toast.error("Не удалось добавить событие");
+        } finally {
+            closeRef.current?.click();
+        }
+    }
+
+    async function onSubmitUpdate(values: z.infer<typeof clockSchema>) {
+        try {
+            if (!org) {
+                throw new Error("Не выбрана организация");
+            }
+
+            const document: ClockDocument = {
+                ...doc,
+                text: values.text,
+                showNow: values.showNow,
+                org: values.showEverywhere ? "all" : org,
+                image: ""
+            }
+
+            const res = await admin?.updateDocument(document);
+            if (res) {
+                dispatch(
+                    updateDocByType({ type: document.type, doc: res }),
+                );
+                toast.success("Событие успешно изменено");
+            }
+        } catch (err) {
+            console.log(err)
+            toast.error("Не удалось изменить событие");
+        } finally {
+            closeRef.current?.click();
+        }
+    }
+
+    async function handleDelete() {
+        if (!doc._rev) return
+
+        try {
+            const res = await admin?.deleteDocument(doc._id, doc._rev)
+
+            if (res) {
+                dispatch(
+                    deleteDocByType({ type: doc.type, id: res.id }),
+                );
+                toast.success("Событие успешно удалено");
+            }
+        } catch (err) {
+            console.log(err)
+            toast.error("Не удалось удалить событие");
         } finally {
             closeRef.current?.click();
         }
@@ -92,7 +147,9 @@ function ClockForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+                onSubmit={form.handleSubmit((values) => doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values))}
+                className="space-y-4">
                 <div className="flex gap-4 justify-between items-stretch">
                     <FormField
                         control={form.control}
@@ -180,9 +237,20 @@ function ClockForm() {
                     )}
                 />
                 <DialogFooter>
-                    <Button className="text-lg" type="submit">
-                        Добавить
-                    </Button>
+                    {doc._rev ? (
+                        <>
+                            <Button className="text-lg" type="button" onClick={handleDelete}>
+                                Удалить
+                            </Button>
+                            <Button className="text-lg" type="submit">
+                                Изменить
+                            </Button>
+                        </>
+                    ) :
+                        <Button className="text-lg" type="submit">
+                            Добавить
+                        </Button>
+                    }
                     <DialogClose ref={closeRef} className="hidden" />
                 </DialogFooter>
             </form>

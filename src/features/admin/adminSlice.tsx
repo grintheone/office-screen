@@ -15,8 +15,7 @@ export type AdminContentTypes =
     | "clock";
 
 interface AdminState {
-    modalType: null | AdminContentTypes;
-    currentModalItem: null | AnyDocument;
+    formData: null | AnyDocument;
     documents: {
         info: AnyDocument[],
         holiday: AnyDocument[],
@@ -29,8 +28,7 @@ interface AdminState {
 }
 
 const initialState: AdminState = {
-    modalType: null,
-    currentModalItem: null,
+    formData: null,
     documents: {
         info: [],
         holiday: [],
@@ -46,29 +44,32 @@ const adminSlice = createSlice({
     name: "admin",
     initialState,
     reducers: {
-        setModalType(state, action: PayloadAction<AdminContentTypes>) {
-            state.modalType = action.payload;
-        },
-        setCurrentModalItem(state, action: PayloadAction<AnyDocument | null>) {
-            state.currentModalItem = action.payload
-            if (action.payload) {
-                state.modalType = action.payload.type
-            }
+        setFormData(state, action: PayloadAction<AnyDocument | null>) {
+            state.formData = action.payload
         },
         setAllDocsByType(state, action: PayloadAction<{ type: AdminContentTypes, docs: AnyDocument[] }>) {
             state.documents[action.payload.type] = action.payload.docs
         },
         addNewDocByType(state, action: PayloadAction<{ type: AdminContentTypes, doc: AnyDocument }>) {
             state.documents[action.payload.type].unshift(action.payload.doc)
-        }
+        },
+        updateDocByType(state, action: PayloadAction<{ type: AdminContentTypes, doc: AnyDocument }>) {
+            const { type, doc } = action.payload;
+            const index = state.documents[type].findIndex(existingDoc => existingDoc._id === doc._id);
+            if (index >= 0) {
+                state.documents[type][index] = doc;
+            }
+        },
+        deleteDocByType(state, action: PayloadAction<{ type: AdminContentTypes, id: string }>) {
+            state.documents[action.payload.type] = state.documents[action.payload.type].filter(doc => doc._id !== action.payload.id)
+        },
     },
     selectors: {
-        selectModalType: (state) => state.modalType,
+        selectFormData: (state) => state.formData,
         selectAllDocsByType: (state, type: AdminContentTypes) => state.documents[type],
-        selectCurrentModalItem: (state) => state.currentModalItem
     },
 });
 
-export const { setModalType, setCurrentModalItem, setAllDocsByType, addNewDocByType } = adminSlice.actions;
-export const { selectModalType, selectAllDocsByType, selectCurrentModalItem } = adminSlice.selectors;
+export const { setFormData, setAllDocsByType, addNewDocByType, updateDocByType, deleteDocByType } = adminSlice.actions;
+export const { selectAllDocsByType, selectFormData } = adminSlice.selectors;
 export default adminSlice.reducer;

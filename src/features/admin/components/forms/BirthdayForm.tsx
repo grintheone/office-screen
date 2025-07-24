@@ -27,7 +27,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
-import { addNewDocByType } from "@/features/admin/adminSlice";
+import { addNewDocByType, deleteDocByType, updateDocByType } from "@/features/admin/adminSlice";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import { cn } from "@/lib/utils";
@@ -43,7 +43,7 @@ const birthdaySchema = z.object({
     showInMainFeed: z.boolean(),
 });
 
-function BirthdayForm() {
+function BirthdayForm(doc: BirthdayDocument) {
     const dispatch = useAppDispatch();
     const org = useAppSelector(selectTheme);
     const admin = useAdminService();
@@ -54,36 +54,91 @@ function BirthdayForm() {
     const form = useForm<z.infer<typeof birthdaySchema>>({
         resolver: zodResolver(birthdaySchema),
         defaultValues: {
-            name: "",
-            displayDate: undefined,
-            showEverywhere: false,
-            showInMainFeed: false,
+            name: doc.name,
+            displayDate: doc.displayDate === "" ? undefined : new Date(doc.displayDate),
+            showEverywhere: doc.org === "all",
+            showInMainFeed: doc.showInMainFeed,
             photo: undefined,
         },
     });
 
-    async function onSubmit(values: z.infer<typeof birthdaySchema>) {
+    async function onSubmitCreate(values: z.infer<typeof birthdaySchema>) {
         try {
             if (!org) {
                 throw new Error("Не выбрана организация");
             }
 
-            const document: Omit<BirthdayDocument, "_id" | "_rev" | "type"> = {
+            const document: BirthdayDocument = {
+                ...doc,
                 name: values.name,
                 displayDate: values.displayDate.toISOString(),
                 org: values.showEverywhere ? "all" : org,
                 showInMainFeed: values.showInMainFeed,
-                photo: "",
-            };
+                photo: ""
+            }
 
-            const res = await admin?.createDocument("birthday", document);
-            dispatch(
-                addNewDocByType({ type: "birthday", doc: res as BirthdayDocument }),
-            );
-            toast.success("День рождение успешно добавлено");
+            const res = await admin?.createDocument(document);
+            if (res) {
+                dispatch(
+                    addNewDocByType({ type: document.type, doc: res }),
+                );
+                toast.success("День рождение успешно добавлено");
+            }
+
         } catch (err) {
-            console.log(err);
+            console.log(err)
             toast.error("Не удалось добавить день рождение");
+        } finally {
+            closeRef.current?.click();
+        }
+    }
+
+    async function onSubmitUpdate(values: z.infer<typeof birthdaySchema>) {
+        try {
+            if (!org) {
+                throw new Error("Не выбрана организация");
+            }
+
+            const document: BirthdayDocument = {
+                ...doc,
+                name: values.name,
+                displayDate: values.displayDate.toISOString(),
+                org: values.showEverywhere ? "all" : org,
+                showInMainFeed: values.showInMainFeed,
+                photo: ""
+            }
+
+            const res = await admin?.updateDocument(document);
+            if (res) {
+                dispatch(
+                    updateDocByType({ type: document.type, doc: res }),
+                );
+                toast.success("День рождение успешно изменено");
+            }
+        } catch (err) {
+            console.log(err)
+            toast.error("Не удалось обновить день рождение");
+        } finally {
+            closeRef.current?.click();
+        }
+    }
+
+
+    async function handleDelete() {
+        if (!doc._rev) return
+
+        try {
+            const res = await admin?.deleteDocument(doc._id, doc._rev)
+
+            if (res) {
+                dispatch(
+                    deleteDocByType({ type: doc.type, id: res.id }),
+                );
+                toast.success("День рождение успешно удалено");
+            }
+        } catch (err) {
+            console.log(err)
+            toast.error("Не удалось удалить день рождение");
         } finally {
             closeRef.current?.click();
         }
@@ -91,7 +146,9 @@ function BirthdayForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+                onSubmit={form.handleSubmit((values) => doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values))}
+                className="space-y-4">
                 <div className="flex justify-between gap-8">
                     <div className="space-y-4">
                         <FormField
@@ -224,9 +281,20 @@ function BirthdayForm() {
                     )}
                 />
                 <DialogFooter>
-                    <Button className="text-lg" type="submit">
-                        Добавить
-                    </Button>
+                    {doc._rev ? (
+                        <>
+                            <Button className="text-lg" type="button" onClick={handleDelete}>
+                                Удалить
+                            </Button>
+                            <Button className="text-lg" type="submit">
+                                Изменить
+                            </Button>
+                        </>
+                    ) :
+                        <Button className="text-lg" type="submit">
+                            Добавить
+                        </Button>
+                    }
                     <DialogClose ref={closeRef} className="hidden" />
                 </DialogFooter>
             </form>

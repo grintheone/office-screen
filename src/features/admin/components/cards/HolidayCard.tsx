@@ -1,7 +1,7 @@
 import { useAppDispatch } from "@/app/hooks"
 import img from "@/assets/images/test2.jpeg"
 import { DialogTrigger } from "@/components/ui/dialog"
-import { AdminVideoEffect, setCurrentModalItem } from "@/features/admin/adminSlice"
+import { AdminVideoEffect, setFormData } from "@/features/admin/adminSlice"
 import type { HolidayDocument } from "@/services/AdminService"
 
 function HolidayCard(doc: HolidayDocument) {
@@ -11,7 +11,7 @@ function HolidayCard(doc: HolidayDocument) {
         <div className={`${doc.org === "all" ? "ring-primary/90" : ""} bg-white ring-2 ring-primary/10 m-4 rounded-md hover:ring-primary/50`}>
             <DialogTrigger
                 className="flex flex-col gap-4 text-sm size-full p-2"
-                onClick={() => dispatch(setCurrentModalItem(doc))}
+                onClick={() => dispatch(setFormData(doc))}
             >
                 <div className="flex justify-between gap-4">
                     <div className="leading-4">{doc.title}</div>
