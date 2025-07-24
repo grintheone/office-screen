@@ -27,7 +27,11 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
-import { addNewDocByType, deleteDocByType, updateDocByType } from "@/features/admin/adminSlice";
+import {
+    addNewDocByType,
+    deleteDocByType,
+    updateDocByType,
+} from "@/features/admin/adminSlice";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import { cn } from "@/lib/utils";
@@ -55,7 +59,8 @@ function BirthdayForm(doc: BirthdayDocument) {
         resolver: zodResolver(birthdaySchema),
         defaultValues: {
             name: doc.name,
-            displayDate: doc.displayDate === "" ? undefined : new Date(doc.displayDate),
+            displayDate:
+                doc.displayDate === "" ? undefined : new Date(doc.displayDate),
             showEverywhere: doc.org === "all",
             showInMainFeed: doc.showInMainFeed,
             photo: undefined,
@@ -71,22 +76,19 @@ function BirthdayForm(doc: BirthdayDocument) {
             const document: BirthdayDocument = {
                 ...doc,
                 name: values.name,
-                displayDate: values.displayDate.toISOString(),
+                displayDate: format(values.displayDate, "yyyy-MM-dd"),
                 org: values.showEverywhere ? "all" : org,
                 showInMainFeed: values.showInMainFeed,
-                photo: ""
-            }
+                photo: "",
+            };
 
             const res = await admin?.createDocument(document);
             if (res) {
-                dispatch(
-                    addNewDocByType({ type: document.type, doc: res }),
-                );
+                dispatch(addNewDocByType({ type: document.type, doc: res }));
                 toast.success("День рождение успешно добавлено");
             }
-
         } catch (err) {
-            console.log(err)
+            console.log(err);
             toast.error("Не удалось добавить день рождение");
         } finally {
             closeRef.current?.click();
@@ -102,42 +104,37 @@ function BirthdayForm(doc: BirthdayDocument) {
             const document: BirthdayDocument = {
                 ...doc,
                 name: values.name,
-                displayDate: values.displayDate.toISOString(),
+                displayDate: format(values.displayDate, "yyyy-MM-dd"),
                 org: values.showEverywhere ? "all" : org,
                 showInMainFeed: values.showInMainFeed,
-                photo: ""
-            }
+                photo: "",
+            };
 
             const res = await admin?.updateDocument(document);
             if (res) {
-                dispatch(
-                    updateDocByType({ type: document.type, doc: res }),
-                );
+                dispatch(updateDocByType({ type: document.type, doc: res }));
                 toast.success("День рождение успешно изменено");
             }
         } catch (err) {
-            console.log(err)
+            console.log(err);
             toast.error("Не удалось обновить день рождение");
         } finally {
             closeRef.current?.click();
         }
     }
 
-
     async function handleDelete() {
-        if (!doc._rev) return
+        if (!doc._rev) return;
 
         try {
-            const res = await admin?.deleteDocument(doc._id, doc._rev)
+            const res = await admin?.deleteDocument(doc._id, doc._rev);
 
             if (res) {
-                dispatch(
-                    deleteDocByType({ type: doc.type, id: res.id }),
-                );
+                dispatch(deleteDocByType({ type: doc.type, id: res.id }));
                 toast.success("День рождение успешно удалено");
             }
         } catch (err) {
-            console.log(err)
+            console.log(err);
             toast.error("Не удалось удалить день рождение");
         } finally {
             closeRef.current?.click();
@@ -147,8 +144,11 @@ function BirthdayForm(doc: BirthdayDocument) {
     return (
         <Form {...form}>
             <form
-                onSubmit={form.handleSubmit((values) => doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values))}
-                className="space-y-4">
+                onSubmit={form.handleSubmit((values) =>
+                    doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values),
+                )}
+                className="space-y-4"
+            >
                 <div className="flex justify-between gap-8">
                     <div className="space-y-4">
                         <FormField
@@ -290,11 +290,11 @@ function BirthdayForm(doc: BirthdayDocument) {
                                 Изменить
                             </Button>
                         </>
-                    ) :
+                    ) : (
                         <Button className="text-lg" type="submit">
                             Добавить
                         </Button>
-                    }
+                    )}
                     <DialogClose ref={closeRef} className="hidden" />
                 </DialogFooter>
             </form>

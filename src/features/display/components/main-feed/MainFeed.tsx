@@ -1,4 +1,9 @@
+import { constructFromSymbol } from "date-fns/constants";
 import { useMemo } from "react";
+import BirthdayCard from "@/features/display/components/cards/BirthdayCard";
+import HolidayCard from "@/features/display/components/cards/HolidayCard";
+import InfoCard from "@/features/display/components/cards/InfoCard";
+import QuoteCard from "@/features/display/components/cards/QuoteCard";
 // import BirthdayCard from "@/features/display/components/cards/BirthdayCard";
 // import HolidayCard from "@/features/display/components/cards/HolidayCard";
 // import InfoCard from "@/features/display/components/cards/InfoCard";
@@ -8,8 +13,14 @@ import WeatherCard from "@/features/display/components/cards/WeatherCard";
 import Slider, {
     type Slide,
 } from "@/features/display/components/slider/Slider";
-import { useAdminService } from "@/hooks/useAdminService";
 import type { ParserDataItem } from "@/hooks/useParserData";
+import type {
+    AnyDocument,
+    BirthdayDocument,
+    HolidayDocument,
+    InfoDocument,
+    QuoteDocument,
+} from "@/services/AdminService";
 
 function assembleParserSlides(parserData: ParserDataItem[]) {
     const slides: Slide[] = [];
@@ -39,16 +50,53 @@ function assembleParserSlides(parserData: ParserDataItem[]) {
     return slides;
 }
 
+function assembleAdminSlides(adminData: AnyDocument[]) {
+    const slides: Slide[] = [];
+
+    adminData.forEach((doc) => {
+        switch (doc.type) {
+            case "birthday":
+                slides.push({
+                    component: <BirthdayCard {...(doc as BirthdayDocument)} />,
+                    duration: 10000,
+                });
+                break;
+            case "holiday":
+                slides.push({
+                    component: <HolidayCard {...(doc as HolidayDocument)} />,
+                    duration: 10000,
+                });
+                break;
+            case "quote":
+                slides.push({
+                    component: <QuoteCard {...(doc as QuoteDocument)} />,
+                    duration: 10000,
+                });
+                break;
+            case "info":
+                slides.push({
+                    component: <InfoCard {...(doc as InfoDocument)} />,
+                    duration: 12000,
+                });
+                break;
+        }
+    });
+
+    return slides;
+}
+
 type Props = {
     parserData: ParserDataItem[];
+    adminData: AnyDocument[];
 };
 
-function MainFeed({ parserData }: Props) {
-    const slides = useMemo(() => assembleParserSlides(parserData), [parserData]);
+function MainFeed({ parserData, adminData }: Props) {
+    const parsed = useMemo(() => assembleParserSlides(parserData), [parserData]);
+    const admin = useMemo(() => assembleAdminSlides(adminData), [adminData]);
 
     return (
         <section className="grow basis-8/12 relative">
-            <Slider type="main" slides={slides} />
+            <Slider type="main" slides={[...parsed, ...admin]} />
         </section>
     );
 }

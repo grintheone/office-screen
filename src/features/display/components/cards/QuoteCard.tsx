@@ -1,8 +1,9 @@
 import { nanoid } from "@reduxjs/toolkit"
 import background from "@/assets/images/quote-test.jpeg"
+import type { QuoteDocument } from "@/services/AdminService"
 
 
-function QuoteCard() {
+function QuoteCard(doc: QuoteDocument) {
     return (
         <div
             key={nanoid()}
@@ -13,8 +14,8 @@ function QuoteCard() {
         >
             <div className="bg-black/50 absolute inset-0 rounded-xl" />
             <div className="relative z-30 size-full px-8 flex flex-col gap-4 justify-center items-center text-center text-white text-shadow-lg">
-                <div className="text-4xl">Есть только один способ избежать критики: ничего не делайте, ничего не говорите и будьте никем.</div>
-                <div className="text-2xl">Аристотель</div>
+                <div className="text-4xl">{doc.text}</div>
+                {doc.author !== "" && <div className="text-2xl">{doc.author}</div>}
             </div>
         </div>
     )

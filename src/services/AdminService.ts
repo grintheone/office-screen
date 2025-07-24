@@ -62,6 +62,11 @@ class AdminService extends SyncService {
                     fields: ["type", "org", "_id"],
                 },
             });
+            await this.getLocalDb().createIndex({
+                index: {
+                    fields: ['showNow', 'displayDate', 'org'],
+                },
+            });
         } catch (error) {
             console.error("Index creation failed:", error);
         }

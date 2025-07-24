@@ -97,7 +97,7 @@ function HolidayForm(doc: HolidayDocument) {
             const document: HolidayDocument = {
                 ...doc,
                 title: values.title,
-                displayDate: values.displayDate.toISOString(),
+                displayDate: format(values.displayDate, "yyyy-MM-dd"),
                 org: values.showEverywhere ? "all" : org,
                 effect: values.effect,
                 image: "",
@@ -128,7 +128,7 @@ function HolidayForm(doc: HolidayDocument) {
             const document: HolidayDocument = {
                 ...doc,
                 title: values.title,
-                displayDate: values.displayDate.toISOString(),
+                displayDate: format(values.displayDate, "yyyy-MM-dd"),
                 org: values.showEverywhere ? "all" : org,
                 effect: values.effect,
                 image: "",
