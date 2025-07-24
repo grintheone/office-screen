@@ -9,39 +9,39 @@ import {
     selectModalType,
 } from "@/features/admin/adminSlice";
 import BirthdayForm from "@/features/admin/components/forms/BirthdayForm";
-import InfoForm from "@/features/admin/components/forms/InfoForm";
+import ClockForm from "@/features/admin/components/forms/ClockForm";
 import HolidayForm from "@/features/admin/components/forms/HolidayForm";
+import InfoForm from "@/features/admin/components/forms/InfoForm";
 import QuoteForm from "@/features/admin/components/forms/QuoteForm";
 import { selectTheme } from "@/features/settings/settingsSlice";
-import ClockForm from "@/features/admin/components/forms/ClockForm";
 
 function getModalTitleByType(type: AdminContentTypes) {
     switch (type) {
         case "birthday":
-            return "Добавить день рождение"
+            return "Добавить день рождение";
         case "holiday":
-            return "Добавить праздник"
+            return "Добавить праздник";
         case "info":
-            return "Добавить событие/оборудование"
+            return "Добавить событие/оборудование";
         case "quote":
-            return "Добавить цитату"
+            return "Добавить цитату";
         case "clock":
-            return "Добавить элемент"
+            return "Добавить элемент";
     }
 }
 
 function getModalFormByType(type: AdminContentTypes) {
     switch (type) {
         case "birthday":
-            return <BirthdayForm />
+            return <BirthdayForm />;
         case "holiday":
-            return <HolidayForm />
+            return <HolidayForm />;
         case "info":
-            return <InfoForm />
+            return <InfoForm />;
         case "quote":
-            return <QuoteForm />
+            return <QuoteForm />;
         case "clock":
-            return <ClockForm />
+            return <ClockForm />;
     }
 }
 
@@ -49,15 +49,16 @@ function Modal() {
     const org = useAppSelector(selectTheme);
     const modalType = useAppSelector(selectModalType);
 
-    if (!modalType) return null
+    if (!modalType) return null;
 
     return (
         <DialogContent
-            className={
-                `${org}-theme ${modalType === "holiday" || modalType === "info" ? "sm:max-w-4xl" : "sm:max-w-3xl"}`
-            }>
+            className={`${org}-theme ${modalType === "holiday" || modalType === "info" ? "sm:max-w-4xl" : "sm:max-w-3xl"}`}
+        >
             <DialogHeader>
-                <DialogTitle className="text-2xl">{getModalTitleByType(modalType)}</DialogTitle>
+                <DialogTitle className="text-2xl">
+                    {getModalTitleByType(modalType)}
+                </DialogTitle>
             </DialogHeader>
             {getModalFormByType(modalType)}
         </DialogContent>

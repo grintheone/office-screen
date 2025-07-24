@@ -16,6 +16,7 @@ export type AdminContentTypes =
 
 interface AdminState {
     modalType: null | AdminContentTypes;
+    currentModalItem: null | AnyDocument;
     documents: {
         info: AnyDocument[],
         holiday: AnyDocument[],
@@ -29,6 +30,7 @@ interface AdminState {
 
 const initialState: AdminState = {
     modalType: null,
+    currentModalItem: null,
     documents: {
         info: [],
         holiday: [],
@@ -47,6 +49,12 @@ const adminSlice = createSlice({
         setModalType(state, action: PayloadAction<AdminContentTypes>) {
             state.modalType = action.payload;
         },
+        setCurrentModalItem(state, action: PayloadAction<AnyDocument | null>) {
+            state.currentModalItem = action.payload
+            if (action.payload) {
+                state.modalType = action.payload.type
+            }
+        },
         setAllDocsByType(state, action: PayloadAction<{ type: AdminContentTypes, docs: AnyDocument[] }>) {
             state.documents[action.payload.type] = action.payload.docs
         },
@@ -56,10 +64,11 @@ const adminSlice = createSlice({
     },
     selectors: {
         selectModalType: (state) => state.modalType,
-        selectAllDocsByType: (state, type: AdminContentTypes) => state.documents[type]
+        selectAllDocsByType: (state, type: AdminContentTypes) => state.documents[type],
+        selectCurrentModalItem: (state) => state.currentModalItem
     },
 });
 
-export const { setModalType, setAllDocsByType, addNewDocByType } = adminSlice.actions;
-export const { selectModalType, selectAllDocsByType } = adminSlice.selectors;
+export const { setModalType, setCurrentModalItem, setAllDocsByType, addNewDocByType } = adminSlice.actions;
+export const { selectModalType, selectAllDocsByType, selectCurrentModalItem } = adminSlice.selectors;
 export default adminSlice.reducer;
