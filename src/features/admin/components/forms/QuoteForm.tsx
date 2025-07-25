@@ -113,11 +113,11 @@ function QuoteForm(doc: QuoteDocument) {
                 dispatch(
                     deleteDocByType({ type: doc.type, id: res.id }),
                 );
-                toast.success("День рождение успешно удалено");
+                toast.success("Цитата успешно удалена");
             }
         } catch (err) {
             console.log(err)
-            toast.error("Не удалось удалить день рождение");
+            toast.error("Не удалось удалить цитату");
         } finally {
             closeRef.current?.click();
         }

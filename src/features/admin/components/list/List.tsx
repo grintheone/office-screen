@@ -123,7 +123,8 @@ function List({ type, name }: IList) {
                         type,
                         org: { $in: [org, 'all'] }
                     },
-                    sort: [{ '_id': 'desc' }]
+                    sort: [{ '_id': 'desc' }],
+                    limit: 999,
                 });
                 console.log(result)
                 const docs = result.docs as AnyDocument[]
