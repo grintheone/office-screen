@@ -44,7 +44,9 @@ function assembleParserSlides(parserData: ParserDataItem[]) {
 function assembleAdminSlides(adminData: AnyDocument[]) {
     const slides: Slide[] = [];
 
-    adminData.forEach((doc) => {
+    const shuffled = shuffleArrayWithNoConsecutiveTypes(adminData)
+
+    shuffled.forEach((doc) => {
         switch (true) {
             case doc.type === "birthday" && doc.showInMainFeed:
                 slides.push({
@@ -76,6 +78,45 @@ function assembleAdminSlides(adminData: AnyDocument[]) {
     });
 
     return slides;
+}
+
+function shuffleArrayWithNoConsecutiveTypes(array: AnyDocument[]) {
+    // Fisher-Yates shuffle
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+
+    // Ensure no two consecutive objects have the same 'type'
+    for (let i = 1; i < array.length; i++) {
+        if (array[i].type === array[i - 1].type) {
+            // Find a new position to swap
+            let swapIndex = -1;
+            for (let j = i + 1; j < array.length; j++) {
+                if (array[j].type !== array[i - 1].type) {
+                    swapIndex = j;
+                    break;
+                }
+            }
+            // If no suitable element found, try before
+            if (swapIndex === -1) {
+                for (let j = 0; j < i - 1; j++) {
+                    if (array[j].type !== array[i].type) {
+                        swapIndex = j;
+                        break;
+                    }
+                }
+            }
+            // Swap if possible
+            if (swapIndex !== -1) {
+                [array[i], array[swapIndex]] = [array[swapIndex], array[i]];
+            } else {
+                console.warn("Could not avoid consecutive types. Some duplicates may remain.");
+            }
+        }
+    }
+
+    return array;
 }
 
 type Props = {
