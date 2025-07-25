@@ -2,7 +2,18 @@ import { format } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
 import type { Theme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
-import type { AnyDocument } from "@/services/AdminService";
+import type {
+    AnyDocument,
+} from "@/services/AdminService";
+
+function checkElement(docs: AnyDocument[], change: AnyDocument) {
+    const index = docs.findIndex((item) => item._id === change._id);
+    if (index === -1) return [...docs, change]; // not found, add
+
+    const updatedItems = [...docs];
+    updatedItems[index] = { ...updatedItems[index], ...change }; // update existing
+    return updatedItems;
+}
 
 export function useAdminData(org: Theme) {
     const service = useAdminService();
@@ -12,22 +23,36 @@ export function useAdminData(org: Theme) {
         if (!service) return;
 
         try {
-            const today = format(new Date(), "yyyy-MM-dd")
+            const today = format(new Date(), "yyyy-MM-dd");
 
             const db = service.getLocalDb();
-            const result = await db.find({
+
+            const quotes = await db.find({
                 selector: {
-                    $and: [
-                        {
-                            $or: [{ showNow: true }, { displayDate: today }],
-                        },
-                        {
-                            $or: [{ org: "all" }, { org }],
-                        },
-                    ],
+                    type: "quote",
+                    org: { $in: ["all", org] },
                 },
+                use_index: "quotes_by_org",
             });
-            setData(result.docs as AnyDocument[]);
+
+            const showNow = await db.find({
+                selector: {
+                    showNow: true,
+                    org: { $in: ["all", org] },
+                },
+                use_index: "showNow_by_org",
+            });
+
+            const showToday = await db.find({
+                selector: {
+                    displayDate: today,
+                    org: { $in: ["all", org] },
+                },
+                use_index: "today_docs_by_org",
+            });
+
+            const result = [...showNow.docs, ...quotes.docs, ...showToday.docs];
+            setData(result as AnyDocument[]);
         } catch (err) {
             console.error("Failed to fetch data:", err);
         }
@@ -48,14 +73,33 @@ export function useAdminData(org: Theme) {
                 include_docs: true,
             })
             .on("change", (change) => {
+                if (change.deleted) {
+                    setData((prev) => prev.filter((item) => item._id !== change.id));
+                    return;
+                }
+
                 // Only update state if the changed document is relevant
                 if (change.doc) {
                     const today = new Date().toISOString().split("T")[0];
                     const doc = change.doc as AnyDocument;
-                    console.log(doc, "doc change");
-                    if (doc?.showNow === true || doc?.displayDate === today) {
-                        // Document matches our criteria - refresh the data
-                        fetchData();
+
+                    if (doc.org !== org && doc.org !== "all") {
+                        return;
+                    }
+
+                    if (doc.type === "quote") {
+                        setData((prevItems) => checkElement(prevItems, doc));
+                        return
+                    }
+
+                    if ((doc.type === "info" || doc.type === "clock") && doc.showNow) {
+                        setData((prevItems) => checkElement(prevItems, doc));
+                        return
+                    }
+
+                    if ((doc.type === "birthday" || doc.type === "holiday") && doc.displayDate === today) {
+                        setData((prevItems) => checkElement(prevItems, doc));
+                        return
                     }
                 }
             })
@@ -64,9 +108,9 @@ export function useAdminData(org: Theme) {
             });
 
         return () => {
-            changes.cancel(); // Clean up on unmount
+            changes.cancel();
         };
-    }, [service, fetchData]);
+    }, [service, fetchData, org]);
 
-    return data
+    return data;
 }

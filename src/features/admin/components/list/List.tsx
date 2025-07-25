@@ -76,7 +76,7 @@ function getInitialFormDataByType(type: AdminContentTypes, org: Theme) {
                 type,
                 author: "",
                 text: ""
-            } as QuoteDocument
+            }
         case "birthday":
             return {
                 _id: new Date().toISOString(),
@@ -125,6 +125,7 @@ function List({ type, name }: IList) {
                     },
                     sort: [{ '_id': 'desc' }]
                 });
+                console.log(result)
                 const docs = result.docs as AnyDocument[]
                 dispatch(setAllDocsByType({ type, docs }))
             } catch (err) {

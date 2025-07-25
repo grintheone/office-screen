@@ -1,9 +1,11 @@
 import { nanoid } from "@reduxjs/toolkit"
 import background from "@/assets/images/clock-bday.png"
 
-const names = ["Фамилия Имя Отчество", "Фамилия Имя", "Фамилия Имя Отчество", "Фамилия Имя Отчество", "Фамилия Имя", "Фамилия Имя Отчество"]
+type Props = {
+    names: string[]
+}
 
-function ClockBirthdays() {
+function ClockBirthdays({ names }: Props) {
     const birthdays = names.map(name => <li key={nanoid()}>{name}</li>)
 
     return (

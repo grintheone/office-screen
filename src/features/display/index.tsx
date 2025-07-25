@@ -18,9 +18,9 @@ function Display() {
             <div className="absolute inset-0 z-10 w-full h-full flex">
                 <MainFeed
                     adminData={data}
-                    parserData={parserData.filter((item) => item._id === "weather" || item._id === "currency" || item._id === "currency-inner")}
+                    parserData={parserData}
                 />
-                <ClockFeed />
+                <ClockFeed adminData={data} />
             </div>
         </BackgroundWrapper>
     );

@@ -13,10 +13,10 @@ export interface Document {
     _id: string;
     _rev?: string;
     org: Organization | "all";
-    type: AdminContentTypes;
 }
 
 export interface InfoDocument extends Document {
+    type: Extract<AdminContentTypes, "info">,
     text: string;
     media: string;
     effect: VideoEffects;
@@ -24,6 +24,7 @@ export interface InfoDocument extends Document {
 }
 
 export interface HolidayDocument extends Document {
+    type: Extract<AdminContentTypes, "holiday">,
     title: string;
     displayDate: string;
     image: string;
@@ -31,11 +32,13 @@ export interface HolidayDocument extends Document {
 }
 
 export interface QuoteDocument extends Document {
+    type: Extract<AdminContentTypes, "quote">,
     author: string;
     text: string;
 }
 
 export interface BirthdayDocument extends Document {
+    type: Extract<AdminContentTypes, "birthday">,
     name: string;
     displayDate: string;
     showInMainFeed: boolean;
@@ -43,6 +46,7 @@ export interface BirthdayDocument extends Document {
 }
 
 export interface ClockDocument extends Document {
+    type: Extract<AdminContentTypes, "clock">,
     text: string;
     image: string;
     showNow: boolean
@@ -64,7 +68,20 @@ class AdminService extends SyncService {
             });
             await this.getLocalDb().createIndex({
                 index: {
-                    fields: ['showNow', 'displayDate', 'org'],
+                    fields: ['displayDate', 'org'],
+                    ddoc: "today_docs_by_org"
+                },
+            });
+            await this.getLocalDb().createIndex({
+                index: {
+                    fields: ['showNow', 'org'],
+                    ddoc: "showNow_by_org"
+                },
+            });
+            await this.getLocalDb().createIndex({
+                index: {
+                    fields: ['type', 'org'],
+                    ddoc: "quotes_by_org"
                 },
             });
         } catch (error) {

@@ -1,27 +1,53 @@
-import ClockBirthdays from "@/features/display/components/clock-birthdays/ClockBirthdays";
-import Clock from "@/features/display/components/clock";
+import { useMemo } from "react";
 import ClockCard from "@/features/display/components/cards/ClockCard";
-import Slider from "@/features/display/components/slider/Slider";
+import Clock from "@/features/display/components/clock";
+import ClockBirthdays from "@/features/display/components/clock-birthdays/ClockBirthdays";
+import Slider, {
+    type Slide,
+} from "@/features/display/components/slider/Slider";
+import type { AnyDocument } from "@/services/AdminService";
 
-const carouselItems = [
-    {
-        component: <Clock />,
-        duration: 5000
-    },
-    {
-        component: <ClockCard />,
-        duration: 5000
-    },
-    {
-        component: <ClockBirthdays />,
-        duration: 5000
-    }
-];
+function assembleAdminSlides(adminData: AnyDocument[]) {
+    const slides: Slide[] = [
+        {
+            component: <Clock />,
+            duration: 10000,
+        },
+    ];
 
-function ClockFeed() {
+    const birthdayNames: string[] = [];
+
+    adminData.forEach((doc) => {
+        if (doc.type === "birthday") {
+            birthdayNames.push(doc.name);
+        }
+
+        if (doc.type === "clock") {
+            slides.push({
+                component: <ClockCard {...doc} />,
+                duration: 10000,
+            });
+        }
+    });
+
+    slides.push({
+        component: <ClockBirthdays names={birthdayNames} />,
+        duration: 30000,
+    });
+
+    return slides;
+}
+
+type Props = {
+    adminData: AnyDocument[];
+};
+
+function ClockFeed({ adminData }: Props) {
+    const slides = useMemo(() => assembleAdminSlides(adminData), [adminData]);
+
     return (
         <section className="grow basis-4/12 relative">
-            <Slider type="clock" slides={carouselItems} />
+            <Slider type="clock" slides={slides} />
         </section>
     );
 }
