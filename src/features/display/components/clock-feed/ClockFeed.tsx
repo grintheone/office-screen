@@ -30,10 +30,12 @@ function assembleAdminSlides(adminData: AnyDocument[]) {
         }
     });
 
-    slides.push({
-        component: <ClockBirthdays names={birthdayNames} />,
-        duration: 30000,
-    });
+    if (birthdayNames.length > 0) {
+        slides.push({
+            component: <ClockBirthdays names={birthdayNames} />,
+            duration: 30000,
+        });
+    }
 
     return slides;
 }
