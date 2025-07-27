@@ -121,12 +121,12 @@ function List({ type, name }: IList) {
                 const result = await db.find({
                     selector: {
                         type,
-                        org: { $in: [org, 'all'] }
+                        org: { $in: [org, 'all'] },
+                        _id: { $gt: null }
                     },
                     sort: [{ '_id': 'desc' }],
                     limit: 999,
                 });
-                console.log(result)
                 const docs = result.docs as AnyDocument[]
                 dispatch(setAllDocsByType({ type, docs }))
             } catch (err) {

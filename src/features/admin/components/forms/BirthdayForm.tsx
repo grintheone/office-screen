@@ -32,6 +32,7 @@ import {
     deleteDocByType,
     updateDocByType,
 } from "@/features/admin/adminSlice";
+import ImageCropper from "@/features/admin/components/cropper/ImageCropper";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import { cn } from "@/lib/utils";
@@ -42,7 +43,8 @@ const birthdaySchema = z.object({
     displayDate: z.date({
         error: "Выберите дату отображения",
     }),
-    photo: z.instanceof(FileList).optional(),
+    // photo: z.instanceof(FileList).optional(),
+    photo: z.any(),
     showEverywhere: z.boolean(),
     showInMainFeed: z.boolean(),
 });
@@ -66,6 +68,29 @@ function BirthdayForm(doc: BirthdayDocument) {
             photo: undefined,
         },
     });
+
+    const [showCropper, setShowCropper] = useState(false);
+    const selectedFile = form.watch("photo")?.[0];
+
+    console.log(selectedFile, 'selected')
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setShowCropper(true);
+        }
+    };
+
+    const handleCropped = (file: File) => {
+        const fileList = {
+            0: file,
+            length: 1,
+            item: () => file
+        } as unknown as FileList;
+
+        form.setValue("photo", fileList);
+        form.setValue("showInMainFeed", true)
+        setShowCropper(false);
+    };
 
     async function onSubmitCreate(values: z.infer<typeof birthdaySchema>) {
         try {
@@ -143,6 +168,16 @@ function BirthdayForm(doc: BirthdayDocument) {
 
     return (
         <Form {...form}>
+            {showCropper && selectedFile && (
+                <ImageCropper
+                    file={selectedFile}
+                    onComplete={handleCropped}
+                    onCancel={() => {
+                        setShowCropper(false)
+                        form.resetField('photo')
+                    }}
+                />
+            )}
             <form
                 onSubmit={form.handleSubmit((values) =>
                     doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values),
@@ -230,7 +265,11 @@ function BirthdayForm(doc: BirthdayDocument) {
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                             type="file"
                                             accept="image/*"
-                                            onChange={(e) => onChange(e.target.files)}
+                                            onChange={(e) => {
+
+                                                onChange(e.target.files);
+                                                handleFileChange(e)
+                                            }}
                                             {...rest}
                                         />
                                     </div>
