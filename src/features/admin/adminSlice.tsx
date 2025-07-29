@@ -1,6 +1,8 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { AnyDocument } from "@/services/AdminService";
 
+export const videoFormats = [".mp4", ".webm", ".mov"];
+
 export const AdminVideoEffect = {
     "none": "Без эффекта",
     "confetti": "Конфетти",

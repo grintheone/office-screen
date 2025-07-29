@@ -30,6 +30,7 @@ import {
     addNewDocByType,
     deleteDocByType,
     updateDocByType,
+    videoFormats,
 } from "@/features/admin/adminSlice";
 import { upload } from "@/features/admin/loader";
 import { EffectSelectShema } from "@/features/display/displaySlice";
@@ -37,10 +38,8 @@ import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import type { InfoDocument } from "@/services/AdminService";
 
-const videoFormats = [".mp4", ".webm", ".ogg"];
-
 function isVideoUrl(url: string) {
-    const isVideo = videoFormats.some(format => url.includes(format))
+    const isVideo = videoFormats.some((format) => url.includes(format));
 
     if (isVideo) {
         return (
@@ -51,15 +50,33 @@ function isVideoUrl(url: string) {
                 autoPlay
                 muted
             />
-        )
+        );
+    } else {
+        return <img src={url} alt={""} className="" />;
+    }
+}
+
+function isVideoFile(file: File) {
+    const isVideo = videoFormats.some((format) => file.name.includes(format));
+
+    if (isVideo) {
+        return (
+            <video
+                className="w-full h-full object-cover rounded-md"
+                src={URL.createObjectURL(file)}
+                preload="auto"
+                autoPlay
+                muted
+            />
+        );
     } else {
         return (
             <img
-                src={url}
-                alt={""}
-                className=""
+                src={URL.createObjectURL(file)}
+                alt={file.name}
+                className="w-full h-full object-cover rounded-md"
             />
-        )
+        );
     }
 }
 
@@ -227,13 +244,11 @@ function InfoForm(doc: InfoDocument) {
                                 <FormControl>
                                     <div className="relative w-72 h-48 bg-primary/10 rounded-md flex items-center justify-center">
                                         {value.length > 0 ? (
-                                            <img
-                                                src={URL.createObjectURL(value[0])}
-                                                alt={value[0].name}
-                                                className="w-full h-full object-cover rounded-md"
-                                            />
+                                            isVideoFile(value[0])
+                                        ) : mediaUrl ? (
+                                            isVideoUrl(mediaUrl)
                                         ) : (
-                                            mediaUrl ? isVideoUrl(mediaUrl) : <MediaIcon className="text-primary/50 size-36" />
+                                            <MediaIcon className="text-primary/50 size-36" />
                                         )}
                                         <Input
                                             id="media"

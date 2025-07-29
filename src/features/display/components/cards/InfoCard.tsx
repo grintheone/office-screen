@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "@/app/hooks";
+import { videoFormats } from "@/features/admin/adminSlice";
 import { setEffect, setVideoSlideState } from "@/features/display/displaySlice";
 import type { InfoDocument } from "@/services/AdminService";
-
-// Determine media type
-const videoFormats = ['.mp4', '.webm', '.ogg'];
 
 function InfoCard(doc: InfoDocument) {
     const dispatch = useAppDispatch();
@@ -23,8 +21,8 @@ function InfoCard(doc: InfoDocument) {
     }, [dispatch, doc.effect]);
 
     useEffect(() => {
-        const isVideoFile = videoFormats.some(format =>
-            doc.media.includes(format)
+        const isVideoFile = videoFormats.some((format) =>
+            doc.media.includes(format),
         );
 
         setIsVideo(isVideoFile);
@@ -38,14 +36,14 @@ function InfoCard(doc: InfoDocument) {
                 clearTimeout(timer);
             };
         }
-    }, [doc, dispatch])
+    }, [doc, dispatch]);
 
     return (
         <div className="flex flex-col gap-8 max-w-4xl animate-rotate-y">
             <div className="text-3xl text-white animate-slide-up opacity-0 whitespace-pre-wrap">
                 {doc.text}
             </div>
-            {isVideo ?
+            {isVideo ? (
                 <video
                     className="max-h-[600px] size-full object-left object-contain rounded-xl"
                     onLoadedData={() => dispatch(setVideoSlideState("started"))}
@@ -54,13 +52,14 @@ function InfoCard(doc: InfoDocument) {
                     preload="auto"
                     autoPlay
                     muted
-                /> :
+                />
+            ) : (
                 <img
                     className={`${!doc.text && doc.text.length === 0 ? "max-h-[600px]" : "max-h-[500px]"} size-full object-left object-contain rounded-xl`}
                     src={doc.media}
                     alt="card"
                 />
-            }
+            )}
         </div>
     );
 }

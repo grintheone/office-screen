@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "@/app/hooks";
 import { DialogTrigger } from "@/components/ui/dialog";
-import { AdminVideoEffect, setFormData } from "@/features/admin/adminSlice";
+import {
+    AdminVideoEffect,
+    setFormData,
+    videoFormats,
+} from "@/features/admin/adminSlice";
 import type { InfoDocument } from "@/services/AdminService";
-
-const videoFormats = [".mp4", ".webm", ".ogg"];
 
 function InfoCard(doc: InfoDocument) {
     const dispatch = useAppDispatch();
