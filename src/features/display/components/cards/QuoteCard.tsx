@@ -1,7 +1,6 @@
-import { nanoid } from "@reduxjs/toolkit"
-import background from "@/assets/images/quote-test.jpeg"
-import type { QuoteDocument } from "@/services/AdminService"
-
+import { nanoid } from "@reduxjs/toolkit";
+import type { QuoteDocument } from "@/services/AdminService";
+import { quoteManager } from "@/services/QuoteManager";
 
 function QuoteCard(doc: QuoteDocument) {
     return (
@@ -9,7 +8,7 @@ function QuoteCard(doc: QuoteDocument) {
             key={nanoid()}
             className="relative rounded-xl w-[800px] h-[600px] object-cover object-center animate-slide-up"
             style={{
-                backgroundImage: `url(${background})`
+                backgroundImage: `url(${quoteManager.getNextQuote()})`,
             }}
         >
             <div className="bg-black/50 absolute inset-0 rounded-xl" />
@@ -18,7 +17,7 @@ function QuoteCard(doc: QuoteDocument) {
                 {doc.author !== "" && <div className="text-2xl">{doc.author}</div>}
             </div>
         </div>
-    )
+    );
 }
 
-export default QuoteCard
+export default QuoteCard;
