@@ -1,4 +1,4 @@
-import { useAppSelector } from "@/app/hooks"
+import { useAppDispatch, useAppSelector } from "@/app/hooks"
 import solt_clear from "@/assets/videos/solt_clear.webm"
 import solt_cloudy from "@/assets/videos/solt_cloudly.webm"
 import solt_few_clouds from "@/assets/videos/solt_few_clouds.webm"
@@ -9,6 +9,7 @@ import vbb_cloudy from "@/assets/videos/vbb_cloudly.webm"
 import vbb_few_clouds from "@/assets/videos/vbb_few_clouds.webm"
 import vbb_rain from "@/assets/videos/vbb_rain.webm"
 import vbb_thunder from "@/assets/videos/vbb_thunder.webm"
+import { setVideoSlideState } from "@/features/display/displaySlice"
 import { selectTheme } from "@/features/settings/settingsSlice"
 
 import type { ParserDataItem } from "@/hooks/useParserData"
@@ -133,6 +134,7 @@ function isWeatherData(data: unknown): data is WeatherResponse {
 
 function WeatherCard(item: ParserDataItem) {
     const org = useAppSelector(selectTheme)
+    const dispatch = useAppDispatch()
 
     if (!org) return null
     if (!isWeatherData(item.data)) {
@@ -145,7 +147,7 @@ function WeatherCard(item: ParserDataItem) {
     const videoUrl = getWeatherVideoByIcon(item.data.weather[0].icon)
 
     return (
-        <div className="flex flex-col gap-4 max-w-3xl animate-rotate-y">
+        <div className="flex flex-col gap-4 max-w-4xl animate-rotate-y">
             <div className="text-4xl text-white">Сейчас за окном</div>
             <div className="relative w-[800px] h-[500px]">
                 <div className="z-20 text-white absolute inset-0 p-8 flex flex-col justify-between gap-12">
@@ -160,7 +162,15 @@ function WeatherCard(item: ParserDataItem) {
                         <div className="text-3xl">{item.data.main.humidity}% влажности</div>
                     </div>
                 </div>
-                <video className="absolute inset-0 rounded-xl z-10" src={videoUrl[org]} autoPlay muted />
+                <video
+                    className="absolute inset-0 rounded-xl z-10"
+                    onLoadStart={() => dispatch(setVideoSlideState("started"))}
+                    onEnded={() => dispatch(setVideoSlideState("finished"))}
+                    src={videoUrl[org]}
+                    preload="auto"
+                    autoPlay
+                    muted
+                />
             </div>
         </div>
     )

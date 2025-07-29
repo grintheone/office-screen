@@ -20,7 +20,7 @@ function HolidayCard(doc: HolidayDocument) {
     }, [dispatch, doc.effect]);
 
     return (
-        <div className="flex flex-col gap-8 max-w-3xl animate-rotate-y">
+        <div className="flex flex-col gap-8 max-w-4xl animate-rotate-y">
             <img
                 className="max-h-[600px] size-full object-left object-contain rounded-xl"
                 src={image}

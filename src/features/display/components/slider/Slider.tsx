@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { selectVideoSlideState, setVideoSlideState } from "@/features/display/displaySlice";
 
 export type Slide = {
     component: React.ReactNode;
     duration: number; // duration of the display
-}
+};
 
 interface ISlider {
     type: "main" | "clock";
@@ -11,17 +13,28 @@ interface ISlider {
 }
 
 function Slider({ type, slides }: ISlider) {
+    const videoSlideState = useAppSelector(selectVideoSlideState);
+    const dispatch = useAppDispatch()
     const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
         if (slides.length === 0) return;
 
-        const timer = setTimeout(() => {
-            setCurrentIndex((prev) => (prev + 1) % slides.length);
-        }, slides[currentIndex].duration);
+        if (slides[currentIndex].duration !== Infinity) {
+            const timer = setTimeout(() => {
+                setCurrentIndex((prev) => (prev + 1) % slides.length);
+            }, slides[currentIndex].duration);
 
-        return () => clearTimeout(timer);
+            return () => clearTimeout(timer);
+        }
     }, [currentIndex, slides]);
+
+    useEffect(() => {
+        if (videoSlideState === "finished") {
+            setCurrentIndex((prev) => (prev + 1) % slides.length);
+            dispatch(setVideoSlideState("not-started"))
+        }
+    }, [videoSlideState, dispatch, slides])
 
     if (slides.length === 0) {
         return (

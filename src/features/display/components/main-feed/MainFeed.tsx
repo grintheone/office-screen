@@ -25,7 +25,7 @@ function assembleParserSlides(parserData: ParserDataItem[]) {
     if (weatherData?.data) {
         slides.push({
             component: <WeatherCard {...weatherData} />,
-            duration: 18000,
+            duration: Infinity,
         });
     }
 
@@ -69,7 +69,7 @@ function assembleAdminSlides(adminData: AnyDocument[]) {
             case doc.type === "info":
                 slides.push({
                     component: <InfoCard {...doc} />,
-                    duration: 12000,
+                    duration: Infinity,
                 });
                 break;
             default:
@@ -130,7 +130,8 @@ function MainFeed({ parserData, adminData }: Props) {
 
     return (
         <section className="grow basis-8/12 relative">
-            <Slider type="main" slides={[...parsed, ...admin]} />
+            {/* <Slider type="main" slides={[...parsed, ...admin]} /> */}
+            <Slider type="main" slides={admin} />
         </section>
     );
 }

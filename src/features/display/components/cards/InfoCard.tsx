@@ -1,11 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch } from "@/app/hooks";
-import image from "@/assets/images/equip3.png";
-import { setEffect } from "@/features/display/displaySlice";
+import image from "@/assets/images/equip.png";
+import { setEffect, setVideoSlideState } from "@/features/display/displaySlice";
 import type { InfoDocument } from "@/services/AdminService";
+
+// Determine media type
+const videoFormats = ['.mp4', '.webm', '.ogg'];
 
 function InfoCard(doc: InfoDocument) {
     const dispatch = useAppDispatch();
+    const [isVideo, setIsVideo] = useState(true);
 
     useEffect(() => {
         if (doc.effect === "none") {
@@ -19,24 +23,45 @@ function InfoCard(doc: InfoDocument) {
         return () => clearTimeout(id);
     }, [dispatch, doc.effect]);
 
+    useEffect(() => {
+        const isVideoFile = videoFormats.some(format =>
+            doc.media.includes(format)
+        );
+
+        setIsVideo(isVideoFile);
+
+        if (!isVideoFile) {
+            const timer = setTimeout(() => {
+                dispatch(setVideoSlideState("finished"));
+            }, 15000);
+
+            return () => {
+                clearTimeout(timer);
+            };
+        }
+    }, [doc, dispatch])
+
     return (
-        <div className="flex flex-col gap-8 max-w-3xl animate-rotate-y">
+        <div className="flex flex-col gap-8 max-w-4xl animate-rotate-y">
             <div className="text-3xl text-white animate-slide-up opacity-0 whitespace-pre-wrap">
                 {doc.text}
             </div>
-            {!doc.text && doc.text.length === 0 ? (
-                <img
+            {isVideo ?
+                <video
                     className="max-h-[600px] size-full object-left object-contain rounded-xl"
-                    src={image}
-                    alt="card"
-                />
-            ) : (
+                    onLoadedData={() => dispatch(setVideoSlideState("started"))}
+                    onEnded={() => dispatch(setVideoSlideState("finished"))}
+                    src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                    preload="auto"
+                    autoPlay
+                    muted
+                /> :
                 <img
-                    className="max-h-[500px] size-full object-left object-contain rounded-xl"
+                    className={`${!doc.text && doc.text.length === 0 ? "max-h-[600px]" : "max-h-[500px]"} size-full object-left object-contain rounded-xl`}
                     src={image}
                     alt="card"
                 />
-            )}
+            }
         </div>
     );
 }

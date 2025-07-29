@@ -1,8 +1,11 @@
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import confetti from "@/assets/videos/confetti.webm";
 import fireworks from "@/assets/videos/fireworks.webm";
+import backgroundKpd from "@/assets/videos/kpd_bck.webm";
+import backgroundLis from "@/assets/videos/lis_bck.webm";
 import backgroundDefault from "@/assets/videos/solt_bck.webm";
 import backgroundVbb from "@/assets/videos/vbb_bck.webm";
+
 import {
     selectCurrentEffect,
     setEffect,
@@ -10,27 +13,13 @@ import {
 } from "@/features/display/displaySlice";
 import type { Theme } from "@/features/settings/settingsSlice";
 
-function calculateFilters(theme: Theme) {
-    switch (theme) {
-        case "kpd":
-            return {
-                filter: "hue-rotate(350deg) saturate(0.5)",
-                WebkitFilter: "hue-rotate(350deg) saturate(0.5)",
-            };
-        case "a78":
-            return {
-                filter: "hue-rotate(30deg) saturate(1.3)",
-                WebkitFilter: "hue-rotate(30deg) saturate(1.3)",
-            };
-        case "lis":
-            return {
-                filter: "hue-rotate(215deg)",
-                WebkitFilter: "hue-rotate(215deg)",
-            };
-        default:
-            return undefined;
-    }
-}
+const backgrounds = {
+    vbb: backgroundVbb,
+    solt: backgroundDefault,
+    lis: backgroundLis,
+    kpd: backgroundKpd,
+    a78: backgroundDefault,
+};
 
 function getCurrentEffectSrc(effect: VideoEffects) {
     switch (effect) {
@@ -44,9 +33,9 @@ function getCurrentEffectSrc(effect: VideoEffects) {
 }
 
 type Props = {
-    currentOrg: Theme
+    currentOrg: Theme;
     children: React.ReactNode;
-}
+};
 
 const BackgroundWrapper = ({ currentOrg, children }: Props) => {
     const currentEffect = useAppSelector(selectCurrentEffect);
@@ -63,9 +52,12 @@ const BackgroundWrapper = ({ currentOrg, children }: Props) => {
         >
             {children}
             <video
-                src={currentOrg === "vbb" ? backgroundVbb : backgroundDefault}
+                src={backgrounds[currentOrg]}
                 className="absolute inset-0 size-full object-cover"
-                style={calculateFilters(currentOrg)}
+                style={currentOrg === "a78" ? {
+                    filter: "hue-rotate(30deg) saturate(1.3)",
+                    WebkitFilter: "hue-rotate(30deg) saturate(1.3)"
+                } : undefined}
                 autoPlay
                 muted
                 loop

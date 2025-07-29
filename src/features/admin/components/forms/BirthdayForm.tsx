@@ -33,6 +33,7 @@ import {
     updateDocByType,
 } from "@/features/admin/adminSlice";
 import ImageCropper from "@/features/admin/components/cropper/ImageCropper";
+import { upload } from "@/features/admin/loader";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import { cn } from "@/lib/utils";
@@ -72,7 +73,7 @@ function BirthdayForm(doc: BirthdayDocument) {
     const [showCropper, setShowCropper] = useState(false);
     const selectedFile = form.watch("photo")?.[0];
 
-    console.log(selectedFile, 'selected')
+    console.log(selectedFile, "selected");
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -84,12 +85,13 @@ function BirthdayForm(doc: BirthdayDocument) {
         const fileList = {
             0: file,
             length: 1,
-            item: () => file
+            item: () => file,
         } as unknown as FileList;
 
         form.setValue("photo", fileList);
-        form.setValue("showInMainFeed", true)
+        form.setValue("showInMainFeed", true);
         setShowCropper(false);
+        upload();
     };
 
     async function onSubmitCreate(values: z.infer<typeof birthdaySchema>) {
@@ -173,8 +175,8 @@ function BirthdayForm(doc: BirthdayDocument) {
                     file={selectedFile}
                     onComplete={handleCropped}
                     onCancel={() => {
-                        setShowCropper(false)
-                        form.resetField('photo')
+                        setShowCropper(false);
+                        form.resetField("photo");
                     }}
                 />
             )}
@@ -262,13 +264,13 @@ function BirthdayForm(doc: BirthdayDocument) {
                                             <PersonIcon className="text-primary/50 size-48" />
                                         )}
                                         <Input
+                                            id="media"
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                             type="file"
                                             accept="image/*"
                                             onChange={(e) => {
-
                                                 onChange(e.target.files);
-                                                handleFileChange(e)
+                                                handleFileChange(e);
                                             }}
                                             {...rest}
                                         />

@@ -14,5 +14,17 @@ export default defineConfig({
     },
     server: {
         port: 9000,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:3010',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api/, '')
+            },
+            '/cloud': {
+                target: 'https://s3.storage.vbest.ru',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/cloud/, ''),
+            }
+        }
     },
 });
