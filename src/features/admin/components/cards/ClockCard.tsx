@@ -1,5 +1,4 @@
 import { useAppDispatch } from "@/app/hooks"
-import img from "@/assets/images/test2.jpeg"
 import { DialogTrigger } from "@/components/ui/dialog"
 import { setFormData } from "@/features/admin/adminSlice"
 import type { ClockDocument } from "@/services/AdminService"
@@ -15,7 +14,7 @@ function ClockCard(doc: ClockDocument) {
             >
                 <div className="leading-4 whitespace-pre-wrap text-left">{doc.text}</div>
                 <div className="flex justify-between items-end">
-                    <img className="size-24 rounded-md object-cover object-center bg-primary/5" src={img} alt="" />
+                    <img className="size-24 rounded-md object-cover object-center bg-primary/5" src={doc.image} alt="" />
                     <div>{doc.showNow ? "Показ." : "Скрыто"}</div>
                 </div>
             </DialogTrigger>

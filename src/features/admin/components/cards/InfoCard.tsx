@@ -1,28 +1,53 @@
+import { useEffect, useState } from "react";
 import { useAppDispatch } from "@/app/hooks";
-import img from "@/assets/images/equip.png";
 import { DialogTrigger } from "@/components/ui/dialog";
 import { AdminVideoEffect, setFormData } from "@/features/admin/adminSlice";
 import type { InfoDocument } from "@/services/AdminService";
 
+const videoFormats = [".mp4", ".webm", ".ogg"];
+
 function InfoCard(doc: InfoDocument) {
-    const dispatch = useAppDispatch()
+    const dispatch = useAppDispatch();
+    const [isVideo, setIsVideo] = useState(false);
+
+    useEffect(() => {
+        const isVideoFile = videoFormats.some((format) =>
+            doc.media.includes(format),
+        );
+
+        setIsVideo(isVideoFile);
+    }, [doc]);
 
     return (
-        <div className={`${doc.org === "all" ? "ring-primary/90" : ""} bg-white ring-2 ring-primary/10 m-4 rounded-md hover:ring-primary/50`}>
+        <div
+            className={`${doc.org === "all" ? "ring-primary/90" : ""} bg-white ring-2 ring-primary/10 m-4 rounded-md hover:ring-primary/50`}
+        >
             <DialogTrigger
                 className="flex flex-col gap-4 text-sm size-full p-2"
                 onClick={() => dispatch(setFormData(doc))}
             >
                 <div className="flex justify-between gap-4">
-                    <div className="leading-4 whitespace-pre-wrap text-left">{doc.text}</div>
+                    <div className="leading-4 whitespace-pre-wrap text-left">
+                        {doc.text}
+                    </div>
                     <div>{doc.showNow ? "Показ." : "Скрыто"}</div>
                 </div>
                 <div className="flex justify-between items-end">
-                    <img
-                        className="w-40 h-24 rounded-md object-contain bg-primary/5"
-                        src={img}
-                        alt=""
-                    />
+                    {isVideo ? (
+                        <video
+                            className="w-40 h-24 rounded-md object-contain bg-primary/5"
+                            src={doc.media}
+                            preload="auto"
+                            autoPlay
+                            muted
+                        />
+                    ) : (
+                        <img
+                            className="w-40 h-24 rounded-md object-contain bg-primary/5"
+                            src={doc.media}
+                            alt=""
+                        />
+                    )}
                     <div>{AdminVideoEffect[doc.effect]}</div>
                 </div>
             </DialogTrigger>

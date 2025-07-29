@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "@/app/hooks";
-import image from "@/assets/images/equip.png";
 import { setEffect, setVideoSlideState } from "@/features/display/displaySlice";
 import type { InfoDocument } from "@/services/AdminService";
 
@@ -9,7 +8,7 @@ const videoFormats = ['.mp4', '.webm', '.ogg'];
 
 function InfoCard(doc: InfoDocument) {
     const dispatch = useAppDispatch();
-    const [isVideo, setIsVideo] = useState(true);
+    const [isVideo, setIsVideo] = useState(false);
 
     useEffect(() => {
         if (doc.effect === "none") {
@@ -51,14 +50,14 @@ function InfoCard(doc: InfoDocument) {
                     className="max-h-[600px] size-full object-left object-contain rounded-xl"
                     onLoadedData={() => dispatch(setVideoSlideState("started"))}
                     onEnded={() => dispatch(setVideoSlideState("finished"))}
-                    src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                    src={doc.media}
                     preload="auto"
                     autoPlay
                     muted
                 /> :
                 <img
                     className={`${!doc.text && doc.text.length === 0 ? "max-h-[600px]" : "max-h-[500px]"} size-full object-left object-contain rounded-xl`}
-                    src={image}
+                    src={doc.media}
                     alt="card"
                 />
             }

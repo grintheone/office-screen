@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useAppDispatch } from "@/app/hooks";
-import image from "@/assets/images/birthday.jpg";
 import hat from "@/assets/videos/hat.webm";
 import { setEffect } from "@/features/display/displaySlice";
 import type { BirthdayDocument } from "@/services/AdminService";
@@ -21,7 +20,7 @@ function BirthdayCard(doc: BirthdayDocument) {
             <div className="relative size-[450px]">
                 <img
                     className="z-10 size-full object-cover rounded-2xl"
-                    src={image}
+                    src={doc.photo}
                     alt="birtday card"
                 />
                 <video

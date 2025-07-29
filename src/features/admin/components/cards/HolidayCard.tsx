@@ -1,5 +1,4 @@
 import { useAppDispatch } from "@/app/hooks"
-import img from "@/assets/images/test2.jpeg"
 import { DialogTrigger } from "@/components/ui/dialog"
 import { AdminVideoEffect, setFormData } from "@/features/admin/adminSlice"
 import type { HolidayDocument } from "@/services/AdminService"
@@ -18,7 +17,7 @@ function HolidayCard(doc: HolidayDocument) {
                     <div>{new Date(doc.displayDate).toLocaleDateString()}</div>
                 </div>
                 <div className="flex justify-between items-end">
-                    <img className="w-40 h-24 rounded-md object-cover bg-primary/5" src={img} alt="" />
+                    <img className="w-40 h-24 rounded-md object-cover bg-primary/5" src={doc.image} alt="" />
                     <div>{AdminVideoEffect[doc.effect]}</div>
                 </div>
             </DialogTrigger>

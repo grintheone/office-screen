@@ -15,7 +15,10 @@ function BirthdayCard(doc: BirthdayDocument) {
                 className="flex justify-between items-center gap-4 text-sm size-full p-2"
                 onClick={() => dispatch(setFormData(doc))}>
                 <div className="flex items-center gap-4">
-                    <PersonIcon className="size-16 text-primary/50" />
+                    {doc.photo ?
+                        <img className="size-16 text-primary/50 object-center object-cover rounded-md" src={doc.photo} alt="" /> :
+                        <PersonIcon className="size-16 text-primary/50" />
+                    }
                     <div>{doc.name}</div>
                 </div>
                 <div>{new Date(doc.displayDate).toLocaleDateString()}</div>

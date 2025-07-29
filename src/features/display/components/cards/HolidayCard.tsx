@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useAppDispatch } from "@/app/hooks";
-import image from "@/assets/images/test3.jpeg";
 import { setEffect } from "@/features/display/displaySlice";
 import type { HolidayDocument } from "@/services/AdminService";
 
@@ -23,7 +22,7 @@ function HolidayCard(doc: HolidayDocument) {
         <div className="flex flex-col gap-8 max-w-4xl animate-rotate-y">
             <img
                 className="max-h-[600px] size-full object-left object-contain rounded-xl"
-                src={image}
+                src={doc.image}
                 alt="holiday"
             />
             <div className="text-4xl text-white animate-slide-up opacity-0">
