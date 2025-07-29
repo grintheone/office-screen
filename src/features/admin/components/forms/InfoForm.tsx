@@ -37,6 +37,32 @@ import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import type { InfoDocument } from "@/services/AdminService";
 
+const videoFormats = [".mp4", ".webm", ".ogg"];
+
+function isVideoUrl(url: string) {
+    const isVideo = videoFormats.some(format => url.includes(format))
+
+    if (isVideo) {
+        return (
+            <video
+                className="w-full h-full object-cover rounded-md"
+                src={url}
+                preload="auto"
+                autoPlay
+                muted
+            />
+        )
+    } else {
+        return (
+            <img
+                src={url}
+                alt={""}
+                className=""
+            />
+        )
+    }
+}
+
 const extraSchema = z.object({
     text: z.string(),
     media: z.any(),
@@ -207,11 +233,7 @@ function InfoForm(doc: InfoDocument) {
                                                 className="w-full h-full object-cover rounded-md"
                                             />
                                         ) : (
-                                            mediaUrl ? <img
-                                                src={mediaUrl}
-                                                alt={""}
-                                                className="w-full h-full object-cover rounded-md"
-                                            /> : <MediaIcon className="text-primary/50 size-36" />
+                                            mediaUrl ? isVideoUrl(mediaUrl) : <MediaIcon className="text-primary/50 size-36" />
                                         )}
                                         <Input
                                             id="media"
