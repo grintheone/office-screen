@@ -19,32 +19,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { addNewDocByType, deleteDocByType, updateDocByType } from "@/features/admin/adminSlice";
+import {
+    addNewDocByType,
+    deleteDocByType,
+    updateDocByType,
+} from "@/features/admin/adminSlice";
+import { upload } from "@/features/admin/loader";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import type { ClockDocument } from "@/services/AdminService";
 
-// Define accepted MIME types
-const ACCEPTER_IMAGE_TYPES = [
-    "image/jpeg", // .jpeg, .jpg
-    "image/png", // .png
-];
-
-const maxFileSize = 10 * 1024 * 1024; // 10MB
-
 const clockSchema = z.object({
     text: z.string().min(1, { message: "Заполните поле" }),
-    image: z
-        .any()
-        .refine((files) => files?.length === 1, "Добавьте фото/видео")
-        .refine(
-            (files) => files[0]?.size <= maxFileSize,
-            `Размер не должен превышеать ${maxFileSize / 1024 / 1024}MB`,
-        )
-        .refine(
-            (files) => ACCEPTER_IMAGE_TYPES.includes(files[0]?.type),
-            `Доступные медиа форматы: ${[".jpg", ".jpeg", ".png"].join(", ")}`,
-        ),
+    image: z.any(),
+    imageUrl: z.string(),
     showNow: z.boolean(),
     showEverywhere: z.boolean(),
 });
@@ -63,8 +51,11 @@ function ClockForm(doc: ClockDocument) {
             showNow: doc.showNow,
             showEverywhere: doc.org === "all",
             image: [] as File[],
+            imageUrl: doc.image,
         },
     });
+
+    const imageUrl = form.watch('imageUrl')
 
     async function onSubmitCreate(values: z.infer<typeof clockSchema>) {
         try {
@@ -77,19 +68,16 @@ function ClockForm(doc: ClockDocument) {
                 text: values.text,
                 showNow: values.showNow,
                 org: values.showEverywhere ? "all" : org,
-                image: ""
-            }
+                image: values.imageUrl,
+            };
 
             const res = await admin?.createDocument(document);
             if (res) {
-                dispatch(
-                    addNewDocByType({ type: document.type, doc: res }),
-                );
+                dispatch(addNewDocByType({ type: document.type, doc: res }));
                 toast.success("Событие успешно добавлено");
             }
-
         } catch (err) {
-            console.log(err)
+            console.log(err);
             toast.error("Не удалось добавить событие");
         } finally {
             closeRef.current?.click();
@@ -107,18 +95,16 @@ function ClockForm(doc: ClockDocument) {
                 text: values.text,
                 showNow: values.showNow,
                 org: values.showEverywhere ? "all" : org,
-                image: ""
-            }
+                image: values.imageUrl,
+            };
 
             const res = await admin?.updateDocument(document);
             if (res) {
-                dispatch(
-                    updateDocByType({ type: document.type, doc: res }),
-                );
+                dispatch(updateDocByType({ type: document.type, doc: res }));
                 toast.success("Событие успешно изменено");
             }
         } catch (err) {
-            console.log(err)
+            console.log(err);
             toast.error("Не удалось изменить событие");
         } finally {
             closeRef.current?.click();
@@ -126,19 +112,17 @@ function ClockForm(doc: ClockDocument) {
     }
 
     async function handleDelete() {
-        if (!doc._rev) return
+        if (!doc._rev) return;
 
         try {
-            const res = await admin?.deleteDocument(doc._id, doc._rev)
+            const res = await admin?.deleteDocument(doc._id, doc._rev);
 
             if (res) {
-                dispatch(
-                    deleteDocByType({ type: doc.type, id: res.id }),
-                );
+                dispatch(deleteDocByType({ type: doc.type, id: res.id }));
                 toast.success("Событие успешно удалено");
             }
         } catch (err) {
-            console.log(err)
+            console.log(err);
             toast.error("Не удалось удалить событие");
         } finally {
             closeRef.current?.click();
@@ -148,8 +132,11 @@ function ClockForm(doc: ClockDocument) {
     return (
         <Form {...form}>
             <form
-                onSubmit={form.handleSubmit((values) => doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values))}
-                className="space-y-4">
+                onSubmit={form.handleSubmit((values) =>
+                    doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values),
+                )}
+                className="space-y-4"
+            >
                 <div className="flex gap-4 justify-between items-stretch">
                     <FormField
                         control={form.control}
@@ -168,31 +155,37 @@ function ClockForm(doc: ClockDocument) {
                         control={form.control}
                         name="image"
                         render={({ field: { onChange, value, ...rest } }) => (
-                            (
-                                <FormItem>
-                                    <FormControl>
-                                        <div className="relative w-72 h-48 bg-primary/10 rounded-md flex items-center justify-center">
-                                            {value.length > 0 ? (
-                                                <img
-                                                    src={URL.createObjectURL(value[0])}
-                                                    alt={value[0].name}
-                                                    className="w-full h-full object-cover rounded-md"
-                                                />
-                                            ) : (
-                                                <ImageIcon className="text-primary/50 size-48" />
-                                            )}
-                                            <Input
-                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => onChange(e.target.files)}
-                                                {...rest}
+                            <FormItem>
+                                <FormControl>
+                                    <div className="relative w-72 h-48 bg-primary/10 rounded-md flex items-center justify-center">
+                                        {value.length > 0 ? (
+                                            <img
+                                                src={URL.createObjectURL(value[0])}
+                                                alt={value[0].name}
+                                                className="w-full h-full object-cover rounded-md"
                                             />
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )
+                                        ) : (
+                                            imageUrl ? <img
+                                                src={imageUrl}
+                                                alt={""}
+                                                className="w-full h-full object-cover rounded-md"
+                                            /> : <ImageIcon className="text-primary/50 size-48" />
+                                        )}
+                                        <Input
+                                            id="media"
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                onChange(e.target.files);
+                                                upload((url: string) => form.setValue("imageUrl", url));
+                                            }}
+                                            {...rest}
+                                        />
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
                         )}
                     />
                 </div>
@@ -246,11 +239,11 @@ function ClockForm(doc: ClockDocument) {
                                 Изменить
                             </Button>
                         </>
-                    ) :
+                    ) : (
                         <Button className="text-lg" type="submit">
                             Добавить
                         </Button>
-                    }
+                    )}
                     <DialogClose ref={closeRef} className="hidden" />
                 </DialogFooter>
             </form>

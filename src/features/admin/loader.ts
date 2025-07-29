@@ -1,7 +1,7 @@
 const baseUrl = "https://s3.storage.vbest.ru/";
 
 // `upload` iterates through all files selected and invokes a helper function called `retrieveNewURL`.
-export function upload() {
+export function upload(fn: (url: string) => void) {
     // Get selected files from the input element.
     var files = document.querySelector("#media").files;
 
@@ -10,7 +10,7 @@ export function upload() {
         // Retrieve a URL from our server.
         retrieveNewURL(file, (file, url) => {
             // Upload the file to the server.
-            uploadFile(file, url);
+            uploadFile(file, url, fn);
         });
     }
 }
@@ -20,10 +20,8 @@ export function upload() {
 export function retrieveNewURL(file, cb) {
     fetch(`/api/presignedUrl?name=${file.name}`)
         .then((response) => {
-            console.log(response, "response");
-            response.json().then((url) => {
-                const urlStr = url.url.split(baseUrl)[1];
-                cb(file, urlStr);
+            response.json().then(({ url }) => {
+                cb(file, url);
             });
         })
         .catch((e) => {
@@ -33,19 +31,21 @@ export function retrieveNewURL(file, cb) {
 
 // ``uploadFile` accepts the current filename and the pre-signed URL. It then uses `Fetch API`
 // to upload this file to S3 at `play.min.io:9000` using the URL:
-export async function uploadFile(file, url) {
+export async function uploadFile(file, url, fn) {
     // if (document.querySelector('#status').innerText === 'No uploads') {
     //     document.querySelector('#status').innerHTML = '';
     // }
+    const urlStr = url.split(baseUrl)[1];
     console.log(url, "url before fetch");
     try {
-        const res = await fetch(`/cloud/${url}`, {
+        const res = await fetch(`/cloud/${urlStr}`, {
             method: "PUT",
             body: file,
         });
 
         const text = await res.text();
         console.log(text);
+        fn(url)
         console.log("put file:", url, file);
     } catch (err) {
         console.log(err, "err");

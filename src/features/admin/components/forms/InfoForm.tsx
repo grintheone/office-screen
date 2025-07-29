@@ -26,48 +26,21 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { addNewDocByType, deleteDocByType, updateDocByType } from "@/features/admin/adminSlice";
+import {
+    addNewDocByType,
+    deleteDocByType,
+    updateDocByType,
+} from "@/features/admin/adminSlice";
+import { upload } from "@/features/admin/loader";
 import { EffectSelectShema } from "@/features/display/displaySlice";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import type { InfoDocument } from "@/services/AdminService";
 
-// Define accepted MIME types
-const acceptedImageTypes = [
-    "image/jpeg", // .jpeg, .jpg
-    "image/png", // .png
-];
-
-const acceptedVideoTypes = [
-    "video/mp4", // .mp4
-    "video/webm", // .webm
-];
-
-const maxFileSize = 10 * 1024 * 1024; // 10MB
-
 const extraSchema = z.object({
     text: z.string(),
-    media: z
-        .any()
-        .refine((files) => files?.length === 1, "Добавьте фото/видео")
-        .refine(
-            (files) => files[0]?.size <= maxFileSize,
-            `Размер не должен превышеать ${maxFileSize / 1024 / 1024}MB`,
-        )
-        .refine(
-            (files) =>
-                [...acceptedImageTypes, ...acceptedVideoTypes].includes(files[0]?.type),
-            `Доступные медиа форматы: ${[
-                ".jpg",
-                ".jpeg",
-                ".png",
-                ".webp",
-                ".mp4",
-                ".webm",
-                ".mov",
-                ".avi",
-            ].join(", ")}`,
-        ),
+    media: z.any(),
+    mediaUrl: z.string(),
     effect: z.enum(EffectSelectShema),
     showNow: z.boolean(),
     showEverywhere: z.boolean(),
@@ -88,8 +61,11 @@ function InfoForm(doc: InfoDocument) {
             showNow: doc.showNow,
             showEverywhere: doc.org === "all",
             media: [] as File[],
+            mediaUrl: doc.media,
         },
     });
+
+    const mediaUrl = form.watch("mediaUrl");
 
     async function onSubmitCreate(values: z.infer<typeof extraSchema>) {
         try {
@@ -103,19 +79,16 @@ function InfoForm(doc: InfoDocument) {
                 effect: values.effect,
                 showNow: values.showNow,
                 org: values.showEverywhere ? "all" : org,
-                media: ""
-            }
+                media: values.mediaUrl,
+            };
 
             const res = await admin?.createDocument(document);
             if (res) {
-                dispatch(
-                    addNewDocByType({ type: document.type, doc: res }),
-                );
+                dispatch(addNewDocByType({ type: document.type, doc: res }));
                 toast.success("Событие успешно добавлено");
             }
-
         } catch (err) {
-            console.log(err)
+            console.log(err);
             toast.error("Не удалось добавить событие");
         } finally {
             closeRef.current?.click();
@@ -134,18 +107,16 @@ function InfoForm(doc: InfoDocument) {
                 effect: values.effect,
                 showNow: values.showNow,
                 org: values.showEverywhere ? "all" : org,
-                media: ""
-            }
+                media: values.mediaUrl,
+            };
 
             const res = await admin?.updateDocument(document);
             if (res) {
-                dispatch(
-                    updateDocByType({ type: document.type, doc: res }),
-                );
+                dispatch(updateDocByType({ type: document.type, doc: res }));
                 toast.success("Событие успешно изменено");
             }
         } catch (err) {
-            console.log(err)
+            console.log(err);
             toast.error("Не удалось изменить событие");
         } finally {
             closeRef.current?.click();
@@ -153,19 +124,17 @@ function InfoForm(doc: InfoDocument) {
     }
 
     async function handleDelete() {
-        if (!doc._rev) return
+        if (!doc._rev) return;
 
         try {
-            const res = await admin?.deleteDocument(doc._id, doc._rev)
+            const res = await admin?.deleteDocument(doc._id, doc._rev);
 
             if (res) {
-                dispatch(
-                    deleteDocByType({ type: doc.type, id: res.id }),
-                );
+                dispatch(deleteDocByType({ type: doc.type, id: res.id }));
                 toast.success("Событие успешно удалено");
             }
         } catch (err) {
-            console.log(err)
+            console.log(err);
             toast.error("Не удалось удалить событие");
         } finally {
             closeRef.current?.click();
@@ -175,8 +144,11 @@ function InfoForm(doc: InfoDocument) {
     return (
         <Form {...form}>
             <form
-                onSubmit={form.handleSubmit((values) => doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values))}
-                className="space-y-4">
+                onSubmit={form.handleSubmit((values) =>
+                    doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values),
+                )}
+                className="space-y-4"
+            >
                 <div className="flex justify-between gap-8">
                     <div className="space-y-4 grow">
                         <FormField
@@ -198,7 +170,10 @@ function InfoForm(doc: InfoDocument) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Эффект</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={doc.effect}>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={doc.effect}
+                                    >
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue />
@@ -232,13 +207,21 @@ function InfoForm(doc: InfoDocument) {
                                                 className="w-full h-full object-cover rounded-md"
                                             />
                                         ) : (
-                                            <MediaIcon className="text-primary/50 size-36" />
+                                            mediaUrl ? <img
+                                                src={mediaUrl}
+                                                alt={""}
+                                                className="w-full h-full object-cover rounded-md"
+                                            /> : <MediaIcon className="text-primary/50 size-36" />
                                         )}
                                         <Input
+                                            id="media"
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                             type="file"
                                             accept="image/*, video/*"
-                                            onChange={(e) => onChange(e.target.files)}
+                                            onChange={(e) => {
+                                                onChange(e.target.files);
+                                                upload((url: string) => form.setValue("mediaUrl", url));
+                                            }}
                                             {...rest}
                                         />
                                     </div>
@@ -298,11 +281,11 @@ function InfoForm(doc: InfoDocument) {
                                 Изменить
                             </Button>
                         </>
-                    ) :
+                    ) : (
                         <Button className="text-lg" type="submit">
                             Добавить
                         </Button>
-                    }
+                    )}
                     <DialogClose ref={closeRef} className="hidden" />
                 </DialogFooter>
             </form>

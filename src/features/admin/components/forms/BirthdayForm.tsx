@@ -44,8 +44,8 @@ const birthdaySchema = z.object({
     displayDate: z.date({
         error: "Выберите дату отображения",
     }),
-    // photo: z.instanceof(FileList).optional(),
     photo: z.any(),
+    photoUrl: z.string().optional(),
     showEverywhere: z.boolean(),
     showInMainFeed: z.boolean(),
 });
@@ -67,13 +67,13 @@ function BirthdayForm(doc: BirthdayDocument) {
             showEverywhere: doc.org === "all",
             showInMainFeed: doc.showInMainFeed,
             photo: undefined,
+            photoUrl: doc.photo,
         },
     });
 
     const [showCropper, setShowCropper] = useState(false);
     const selectedFile = form.watch("photo")?.[0];
-
-    console.log(selectedFile, "selected");
+    const photoUrl = form.watch("photoUrl");
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -91,7 +91,7 @@ function BirthdayForm(doc: BirthdayDocument) {
         form.setValue("photo", fileList);
         form.setValue("showInMainFeed", true);
         setShowCropper(false);
-        upload();
+        upload((url: string) => form.setValue("photoUrl", url));
     };
 
     async function onSubmitCreate(values: z.infer<typeof birthdaySchema>) {
@@ -106,7 +106,7 @@ function BirthdayForm(doc: BirthdayDocument) {
                 displayDate: format(values.displayDate, "yyyy-MM-dd"),
                 org: values.showEverywhere ? "all" : org,
                 showInMainFeed: values.showInMainFeed,
-                photo: "",
+                photo: values.photoUrl || "",
             };
 
             const res = await admin?.createDocument(document);
@@ -134,7 +134,7 @@ function BirthdayForm(doc: BirthdayDocument) {
                 displayDate: format(values.displayDate, "yyyy-MM-dd"),
                 org: values.showEverywhere ? "all" : org,
                 showInMainFeed: values.showInMainFeed,
-                photo: "",
+                photo: values.photoUrl || "",
             };
 
             const res = await admin?.updateDocument(document);
@@ -261,7 +261,11 @@ function BirthdayForm(doc: BirthdayDocument) {
                                                 className="w-full h-full object-cover rounded-md"
                                             />
                                         ) : (
-                                            <PersonIcon className="text-primary/50 size-48" />
+                                            photoUrl ? <img
+                                                src={photoUrl}
+                                                alt={""}
+                                                className="w-full h-full object-cover rounded-md"
+                                            /> : <PersonIcon className="text-primary/50 size-48" />
                                         )}
                                         <Input
                                             id="media"

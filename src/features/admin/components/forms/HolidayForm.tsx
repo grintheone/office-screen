@@ -34,37 +34,25 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { addNewDocByType, deleteDocByType, updateDocByType } from "@/features/admin/adminSlice";
+import {
+    addNewDocByType,
+    deleteDocByType,
+    updateDocByType,
+} from "@/features/admin/adminSlice";
+import { upload } from "@/features/admin/loader";
 import { EffectSelectShema } from "@/features/display/displaySlice";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import { cn } from "@/lib/utils";
 import type { HolidayDocument } from "@/services/AdminService";
 
-// Define accepted MIME types
-const ACCEPTER_IMAGE_TYPES = [
-    "image/jpeg", // .jpeg, .jpg
-    "image/png", // .png
-];
-
-const maxFileSize = 10 * 1024 * 1024; // 10MB
-
 const holidaySchema = z.object({
     title: z.string().min(1, { message: "Заполните поле" }),
     displayDate: z.date({
         error: "Выберите дату отображения",
     }),
-    image: z
-        .any()
-        .refine((files) => files?.length === 1, "Добавьте фото/видео")
-        .refine(
-            (files) => files[0]?.size <= maxFileSize,
-            `Размер не должен превышеать ${maxFileSize / 1024 / 1024}MB`,
-        )
-        .refine(
-            (files) => ACCEPTER_IMAGE_TYPES.includes(files[0]?.type),
-            `Доступные медиа форматы: ${[".jpg", ".jpeg", ".png"].join(", ")}`,
-        ),
+    image: z.any(),
+    imageUrl: z.string(),
     effect: z.enum(EffectSelectShema),
     showEverywhere: z.boolean(),
 });
@@ -81,12 +69,16 @@ function HolidayForm(doc: HolidayDocument) {
         resolver: zodResolver(holidaySchema),
         defaultValues: {
             title: doc.title,
-            displayDate: doc.displayDate === "" ? undefined : new Date(doc.displayDate),
+            displayDate:
+                doc.displayDate === "" ? undefined : new Date(doc.displayDate),
             effect: doc.effect,
             showEverywhere: doc.org === "all",
             image: [] as File[],
+            imageUrl: doc.image,
         },
     });
+
+    const imageUrl = form.watch("imageUrl")
 
     async function onSubmitCreate(values: z.infer<typeof holidaySchema>) {
         try {
@@ -100,19 +92,16 @@ function HolidayForm(doc: HolidayDocument) {
                 displayDate: format(values.displayDate, "yyyy-MM-dd"),
                 org: values.showEverywhere ? "all" : org,
                 effect: values.effect,
-                image: "",
-            }
+                image: values.imageUrl,
+            };
 
             const res = await admin?.createDocument(document);
             if (res) {
-                dispatch(
-                    addNewDocByType({ type: document.type, doc: res }),
-                );
+                dispatch(addNewDocByType({ type: document.type, doc: res }));
                 toast.success("Праздник успешно добавлен");
             }
-
         } catch (err) {
-            console.log(err)
+            console.log(err);
             toast.error("Не удалось добавить праздник");
         } finally {
             closeRef.current?.click();
@@ -131,18 +120,16 @@ function HolidayForm(doc: HolidayDocument) {
                 displayDate: format(values.displayDate, "yyyy-MM-dd"),
                 org: values.showEverywhere ? "all" : org,
                 effect: values.effect,
-                image: "",
-            }
+                image: values.imageUrl,
+            };
 
             const res = await admin?.updateDocument(document);
             if (res) {
-                dispatch(
-                    updateDocByType({ type: document.type, doc: res }),
-                );
+                dispatch(updateDocByType({ type: document.type, doc: res }));
                 toast.success("Праздник успешно отредактирован");
             }
         } catch (err) {
-            console.log(err)
+            console.log(err);
             toast.error("Не удалось отредактировать праздник");
         } finally {
             closeRef.current?.click();
@@ -150,31 +137,31 @@ function HolidayForm(doc: HolidayDocument) {
     }
 
     async function handleDelete() {
-        if (!doc._rev) return
+        if (!doc._rev) return;
 
         try {
-            const res = await admin?.deleteDocument(doc._id, doc._rev)
+            const res = await admin?.deleteDocument(doc._id, doc._rev);
 
             if (res) {
-                dispatch(
-                    deleteDocByType({ type: doc.type, id: res.id }),
-                );
+                dispatch(deleteDocByType({ type: doc.type, id: res.id }));
                 toast.success("Праздник успешно удален");
             }
         } catch (err) {
-            console.log(err)
+            console.log(err);
             toast.error("Не удалось удалить праздник");
         } finally {
             closeRef.current?.click();
         }
     }
 
-
     return (
         <Form {...form}>
             <form
-                onSubmit={form.handleSubmit((values) => doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values))}
-                className="space-y-4">
+                onSubmit={form.handleSubmit((values) =>
+                    doc._rev ? onSubmitUpdate(values) : onSubmitCreate(values),
+                )}
+                className="space-y-4"
+            >
                 <div className="flex justify-between gap-8">
                     <div className="space-y-4">
                         <FormField
@@ -280,13 +267,21 @@ function HolidayForm(doc: HolidayDocument) {
                                                 className="w-full h-full object-cover rounded-md"
                                             />
                                         ) : (
-                                            <ImageIcon className="text-primary/50 size-36" />
+                                            imageUrl ? <img
+                                                src={imageUrl}
+                                                alt={""}
+                                                className="w-full h-full object-cover rounded-md"
+                                            /> : <ImageIcon className="text-primary/50 size-36" />
                                         )}
                                         <Input
+                                            id="media"
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                             type="file"
                                             accept="image/*"
-                                            onChange={(e) => onChange(e.target.files)}
+                                            onChange={(e) => {
+                                                onChange(e.target.files);
+                                                upload((url: string) => form.setValue("imageUrl", url));
+                                            }}
                                             {...rest}
                                         />
                                     </div>
@@ -326,11 +321,11 @@ function HolidayForm(doc: HolidayDocument) {
                                 Изменить
                             </Button>
                         </>
-                    ) :
+                    ) : (
                         <Button className="text-lg" type="submit">
                             Добавить
                         </Button>
-                    }
+                    )}
                     <DialogClose ref={closeRef} className="hidden" />
                 </DialogFooter>
             </form>
