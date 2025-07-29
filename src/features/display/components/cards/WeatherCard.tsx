@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
-import solt_clear from "@/assets/videos/solt_clear.webm"
+import solt_clear from "@/assets/videos/solt_clear.mp4"
 import solt_cloudy from "@/assets/videos/solt_cloudly.webm"
 import solt_few_clouds from "@/assets/videos/solt_few_clouds.webm"
 import solt_rain from "@/assets/videos/solt_rain.webm"

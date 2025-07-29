@@ -130,8 +130,7 @@ function MainFeed({ parserData, adminData }: Props) {
 
     return (
         <section className="grow basis-8/12 relative">
-            {/* <Slider type="main" slides={[...parsed, ...admin]} /> */}
-            <Slider type="main" slides={admin} />
+            <Slider type="main" slides={[...parsed, ...admin]} />
         </section>
     );
 }
