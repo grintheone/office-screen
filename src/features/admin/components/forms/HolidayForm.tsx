@@ -43,6 +43,7 @@ import { upload } from "@/features/admin/loader";
 import { EffectSelectShema } from "@/features/display/displaySlice";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
+import { useS3Media } from "@/hooks/useS3Media";
 import { cn } from "@/lib/utils";
 import type { HolidayDocument } from "@/services/AdminService";
 
@@ -62,6 +63,7 @@ function HolidayForm(doc: HolidayDocument) {
     const org = useAppSelector(selectTheme);
     const admin = useAdminService();
 
+    const s3media = useS3Media(doc.image);
     const [open, setOpen] = useState(false);
     const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -77,8 +79,6 @@ function HolidayForm(doc: HolidayDocument) {
             imageUrl: doc.image,
         },
     });
-
-    const imageUrl = form.watch("imageUrl")
 
     async function onSubmitCreate(values: z.infer<typeof holidaySchema>) {
         try {
@@ -266,12 +266,14 @@ function HolidayForm(doc: HolidayDocument) {
                                                 alt={value[0].name}
                                                 className="w-full h-full object-cover rounded-md"
                                             />
-                                        ) : (
-                                            imageUrl ? <img
-                                                src={imageUrl}
+                                        ) : s3media ? (
+                                            <img
+                                                src={s3media}
                                                 alt={""}
                                                 className="w-full h-full object-cover rounded-md"
-                                            /> : <ImageIcon className="text-primary/50 size-36" />
+                                            />
+                                        ) : (
+                                            <ImageIcon className="text-primary/50 size-36" />
                                         )}
                                         <Input
                                             id="media"

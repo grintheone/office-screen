@@ -2,10 +2,12 @@ import { useEffect } from "react";
 import { useAppDispatch } from "@/app/hooks";
 import hat from "@/assets/videos/hat.webm";
 import { setEffect } from "@/features/display/displaySlice";
+import { useS3Media } from "@/hooks/useS3Media";
 import type { BirthdayDocument } from "@/services/AdminService";
 
 function BirthdayCard(doc: BirthdayDocument) {
     const dispatch = useAppDispatch();
+    const s3media = useS3Media(doc.photo);
 
     useEffect(() => {
         const id = setTimeout(() => {
@@ -16,11 +18,11 @@ function BirthdayCard(doc: BirthdayDocument) {
     }, [dispatch]);
 
     return (
-        <div className="flex flex-col gap-8 max-w-3xl animate-rotate-y">
+        <div className="flex flex-col gap-8 max-w-3xl animate-rotate-y" key={doc.photo}>
             <div className="relative size-[450px]">
                 <img
                     className="z-10 size-full object-cover rounded-2xl"
-                    src={doc.photo}
+                    src={s3media ? s3media : undefined}
                     alt="birtday card"
                 />
                 <video

@@ -36,16 +36,16 @@ export async function uploadFile(file, url, fn) {
     //     document.querySelector('#status').innerHTML = '';
     // }
     const urlStr = url.split(baseUrl)[1];
-    console.log(url, "url before fetch");
+    console.log(file, "url before fetch");
     try {
-        const res = await fetch(`/cloud/${urlStr}`, {
+        await fetch(`/cloud/${urlStr}`, {
             method: "PUT",
             body: file,
         });
 
-        const text = await res.text();
-        console.log(text);
-        fn(url)
+        // const text = await res.text();
+        // console.log(text);
+        fn(file.name)
         console.log("put file:", url, file);
     } catch (err) {
         console.log(err, "err");

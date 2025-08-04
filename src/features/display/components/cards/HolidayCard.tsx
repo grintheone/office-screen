@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { useAppDispatch } from "@/app/hooks";
 import { setEffect } from "@/features/display/displaySlice";
+import { useS3Media } from "@/hooks/useS3Media";
 import type { HolidayDocument } from "@/services/AdminService";
 
 function HolidayCard(doc: HolidayDocument) {
     const dispatch = useAppDispatch();
+    const s3media = useS3Media(doc.image);
 
     useEffect(() => {
         if (doc.effect === "none") {
@@ -19,10 +21,10 @@ function HolidayCard(doc: HolidayDocument) {
     }, [dispatch, doc.effect]);
 
     return (
-        <div className="flex flex-col gap-8 max-w-4xl animate-rotate-y">
+        <div className="flex flex-col gap-8 max-w-4xl animate-rotate-y" key={doc.image}>
             <img
                 className="max-h-[600px] size-full object-left object-contain rounded-xl"
-                src={doc.image}
+                src={s3media ? s3media : undefined}
                 alt="holiday"
             />
             <div className="text-4xl text-white animate-slide-up opacity-0">

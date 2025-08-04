@@ -36,6 +36,7 @@ import { upload } from "@/features/admin/loader";
 import { EffectSelectShema } from "@/features/display/displaySlice";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
+import { useS3Media } from "@/hooks/useS3Media";
 import type { InfoDocument } from "@/services/AdminService";
 
 function isVideoUrl(url: string) {
@@ -95,6 +96,7 @@ function InfoForm(doc: InfoDocument) {
     const admin = useAdminService();
 
     const closeRef = useRef<HTMLButtonElement>(null);
+    const s3media = useS3Media(doc.media);
 
     const form = useForm<z.infer<typeof extraSchema>>({
         resolver: zodResolver(extraSchema),
@@ -107,8 +109,6 @@ function InfoForm(doc: InfoDocument) {
             mediaUrl: doc.media,
         },
     });
-
-    const mediaUrl = form.watch("mediaUrl");
 
     async function onSubmitCreate(values: z.infer<typeof extraSchema>) {
         try {
@@ -245,8 +245,8 @@ function InfoForm(doc: InfoDocument) {
                                     <div className="relative w-72 h-48 bg-primary/10 rounded-md flex items-center justify-center">
                                         {value.length > 0 ? (
                                             isVideoFile(value[0])
-                                        ) : mediaUrl ? (
-                                            isVideoUrl(mediaUrl)
+                                        ) : s3media ? (
+                                            isVideoUrl(s3media)
                                         ) : (
                                             <MediaIcon className="text-primary/50 size-36" />
                                         )}

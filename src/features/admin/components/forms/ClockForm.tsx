@@ -27,6 +27,7 @@ import {
 import { upload } from "@/features/admin/loader";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
+import { useS3Media } from "@/hooks/useS3Media";
 import type { ClockDocument } from "@/services/AdminService";
 
 const clockSchema = z.object({
@@ -43,6 +44,7 @@ function ClockForm(doc: ClockDocument) {
     const admin = useAdminService();
 
     const closeRef = useRef<HTMLButtonElement>(null);
+    const s3media = useS3Media(doc.image);
 
     const form = useForm<z.infer<typeof clockSchema>>({
         resolver: zodResolver(clockSchema),
@@ -54,8 +56,6 @@ function ClockForm(doc: ClockDocument) {
             imageUrl: doc.image,
         },
     });
-
-    const imageUrl = form.watch('imageUrl')
 
     async function onSubmitCreate(values: z.infer<typeof clockSchema>) {
         try {
@@ -164,12 +164,14 @@ function ClockForm(doc: ClockDocument) {
                                                 alt={value[0].name}
                                                 className="w-full h-full object-cover rounded-md"
                                             />
-                                        ) : (
-                                            imageUrl ? <img
-                                                src={imageUrl}
+                                        ) : s3media ? (
+                                            <img
+                                                src={s3media}
                                                 alt={""}
                                                 className="w-full h-full object-cover rounded-md"
-                                            /> : <ImageIcon className="text-primary/50 size-48" />
+                                            />
+                                        ) : (
+                                            <ImageIcon className="text-primary/50 size-48" />
                                         )}
                                         <Input
                                             id="media"
