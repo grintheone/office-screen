@@ -1,9 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import DisplayIcon from "@/assets/icons/screen.svg?react";
 import SettingsIcon from "@/assets/icons/settings.svg?react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +26,11 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
-import { selectSettings, selectTheme, setSettings } from "@/features/settings/settingsSlice";
+import {
+    selectSettings,
+    selectTheme,
+    setSettings,
+} from "@/features/settings/settingsSlice";
 
 const FormSchema = z.object({
     globalEffect: z.enum(["disabled", "snow", "flowers"], {
@@ -32,32 +38,37 @@ const FormSchema = z.object({
     }),
 });
 
-export type TSettings = z.infer<typeof FormSchema>
+export type TSettings = z.infer<typeof FormSchema>;
 
 function Settings() {
-    const dispatch = useAppDispatch()
-    const currentSettings = useAppSelector(selectSettings)
+    const dispatch = useAppDispatch();
+    const currentSettings = useAppSelector(selectSettings);
     const [open, setOpen] = useState(false);
 
     const org = useAppSelector(selectTheme);
     const form = useForm<TSettings>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            globalEffect: currentSettings.globalEffect
-        }
+            globalEffect: currentSettings.globalEffect,
+        },
     });
 
     function onSubmit(data: TSettings) {
-        setOpen(false)
-        dispatch(setSettings(data))
+        setOpen(false);
+        dispatch(setSettings(data));
         toast.success("Настройки сохранены");
     }
 
     return (
         <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger className="hover:animate-half-spin">
-                <SettingsIcon className="size-10 text-primary" />
-            </SheetTrigger>
+            <div className="flex items-center gap-4">
+                <Link to={`../${org}`}>
+                    <DisplayIcon className="size-10 text-primary hover:animate-full-spin" />
+                </Link>
+                <SheetTrigger className="hover:animate-half-spin">
+                    <SettingsIcon className="size-10 text-primary" />
+                </SheetTrigger>
+            </div>
             <SheetContent className={`${org}-theme justify-between`}>
                 <SheetHeader className="grow gap-3">
                     <SheetTitle className="text-xl">Настройки панели</SheetTitle>
@@ -106,15 +117,13 @@ function Settings() {
                                     )}
                                 />
                                 <SheetFooter className="p-0">
-                                    <Button type="submit">
-                                        Сохранить
-                                    </Button>
+                                    <Button type="submit">Сохранить</Button>
                                     <Button
                                         type="button"
                                         variant="ghost"
                                         onClick={() => {
-                                            setOpen(false)
-                                            form.reset()
+                                            setOpen(false);
+                                            form.reset();
                                         }}
                                     >
                                         Отмена
