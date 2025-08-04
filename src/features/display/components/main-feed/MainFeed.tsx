@@ -44,7 +44,7 @@ function assembleParserSlides(parserData: ParserDataItem[]) {
 function assembleAdminSlides(adminData: AnyDocument[]) {
     const slides: Slide[] = [];
 
-    const shuffled = shuffleArrayWithNoConsecutiveTypes(adminData)
+    const shuffled = shuffleArrayWithNoConsecutiveTypes(adminData);
 
     shuffled.forEach((doc) => {
         switch (true) {
@@ -73,7 +73,7 @@ function assembleAdminSlides(adminData: AnyDocument[]) {
                 });
                 break;
             default:
-                break
+                break;
         }
     });
 
@@ -111,7 +111,9 @@ function shuffleArrayWithNoConsecutiveTypes(array: AnyDocument[]) {
             if (swapIndex !== -1) {
                 [array[i], array[swapIndex]] = [array[swapIndex], array[i]];
             } else {
-                console.warn("Could not avoid consecutive types. Some duplicates may remain.");
+                console.warn(
+                    "Could not avoid consecutive types. Some duplicates may remain.",
+                );
             }
         }
     }

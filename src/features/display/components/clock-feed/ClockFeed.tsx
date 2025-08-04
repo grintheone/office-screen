@@ -7,7 +7,9 @@ import Slider, {
 } from "@/features/display/components/slider/Slider";
 import type { AnyDocument } from "@/services/AdminService";
 
-function assembleAdminSlides(adminData: AnyDocument[]) {
+
+
+function assembleAdminSlides(adminData: AnyDocument[], kBirthdays: string[] | undefined) {
     const slides: Slide[] = [
         {
             component: <Clock />,
@@ -15,7 +17,11 @@ function assembleAdminSlides(adminData: AnyDocument[]) {
         },
     ];
 
-    const birthdayNames: string[] = [];
+    let birthdayNames: string[] = [];
+
+    if (kBirthdays) {
+        birthdayNames = [...kBirthdays]
+    }
 
     adminData.forEach((doc) => {
         if (doc.type === "birthday") {
@@ -42,10 +48,11 @@ function assembleAdminSlides(adminData: AnyDocument[]) {
 
 type Props = {
     adminData: AnyDocument[];
+    kBirthdays: string[] | undefined
 };
 
-function ClockFeed({ adminData }: Props) {
-    const slides = useMemo(() => assembleAdminSlides(adminData), [adminData]);
+function ClockFeed({ adminData, kBirthdays }: Props) {
+    const slides = useMemo(() => assembleAdminSlides(adminData, kBirthdays), [adminData, kBirthdays]);
 
     return (
         <section className="grow basis-4/12 relative">
