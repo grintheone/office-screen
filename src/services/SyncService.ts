@@ -1,9 +1,16 @@
 import PouchDB from "pouchdb";
 
-export const remoteUrl = `http://${import.meta.env.VITE_DB_USER}:${import.meta.env.VITE_DB_PASSWORD}@${window.location.host.includes("localhost")
-    ? import.meta.env.VITE_DB_HOST_DEV
-    : window.location.host
-    }/db`;
+export const remoteUrl = (() => {
+    const newUrl = new URL(window.location.href)
+    newUrl.username = import.meta.env.VITE_DB_USER
+    newUrl.password = import.meta.env.VITE_DB_PASSWORD
+    newUrl.host = window.location.host.includes("localhost")
+        ? import.meta.env.VITE_DB_HOST_DEV
+        : newUrl.host
+    newUrl.pathname = "/db"
+
+    return newUrl.toString()
+})()
 
 export type AvailableServiceName = "main" | "admin"
 
