@@ -63,7 +63,7 @@ function Settings() {
         <Sheet open={open} onOpenChange={setOpen}>
             <div className="flex items-center gap-4">
                 <Link to={`../${org}`}>
-                    <DisplayIcon className="size-10 text-primary hover:animate-full-spin" />
+                    <DisplayIcon className="size-10 text-primary hover:animate-scale-up" />
                 </Link>
                 <SheetTrigger className="hover:animate-half-spin">
                     <SettingsIcon className="size-10 text-primary" />
