@@ -264,13 +264,13 @@ function HolidayForm(doc: HolidayDocument) {
                                             <img
                                                 src={URL.createObjectURL(value[0])}
                                                 alt={value[0].name}
-                                                className="w-full h-full object-cover rounded-md"
+                                                className="w-full h-full object-contain rounded-md"
                                             />
                                         ) : s3media ? (
                                             <img
                                                 src={s3media}
                                                 alt={""}
-                                                className="w-full h-full object-cover rounded-md"
+                                                className="w-full h-full object-contain rounded-md"
                                             />
                                         ) : (
                                             <ImageIcon className="text-primary/50 size-36" />

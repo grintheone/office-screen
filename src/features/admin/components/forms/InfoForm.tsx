@@ -63,7 +63,7 @@ function isVideoFile(file: File) {
     if (isVideo) {
         return (
             <video
-                className="w-full h-full object-cover rounded-md"
+                className="w-full h-full object-contain rounded-md"
                 src={URL.createObjectURL(file)}
                 preload="auto"
                 autoPlay
@@ -75,7 +75,7 @@ function isVideoFile(file: File) {
             <img
                 src={URL.createObjectURL(file)}
                 alt={file.name}
-                className="w-full h-full object-cover rounded-md"
+                className="w-full h-full object-contain rounded-md"
             />
         );
     }

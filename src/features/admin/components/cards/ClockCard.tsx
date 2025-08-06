@@ -16,7 +16,7 @@ function ClockCard(doc: ClockDocument) {
             >
                 <div className="leading-4 whitespace-pre-wrap text-left">{doc.text}</div>
                 <div className="flex justify-between items-end">
-                    <img className="size-24 rounded-md object-cover object-center bg-primary/5" src={imageUrl ? imageUrl : undefined} alt="" />
+                    <img className="size-24 rounded-md object-contain object-center bg-primary/5" src={imageUrl ? imageUrl : undefined} alt="" />
                     <div>{doc.showNow ? "Показ." : "Скрыто"}</div>
                 </div>
             </DialogTrigger>

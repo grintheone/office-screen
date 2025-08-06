@@ -39,7 +39,7 @@ function InfoCard(doc: InfoDocument) {
                 <div className="flex justify-between items-end">
                     {isVideo ? (
                         <video
-                            className="w-40 h-24 rounded-md object-cover bg-primary/5"
+                            className="w-40 h-24 rounded-md object-contain bg-primary/5"
                             src={mediaUrl ? mediaUrl : undefined}
                             preload="auto"
                             autoPlay
@@ -47,7 +47,7 @@ function InfoCard(doc: InfoDocument) {
                         />
                     ) : (
                         <img
-                            className="w-40 h-24 rounded-md object-cover bg-primary/5"
+                            className="w-40 h-24 rounded-md object-contain bg-primary/5"
                             src={mediaUrl ? mediaUrl : undefined}
                             alt=""
                         />
