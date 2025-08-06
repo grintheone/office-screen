@@ -53,7 +53,7 @@ function isVideoUrl(url: string) {
             />
         );
     } else {
-        return <img src={url} alt={""} className="" />;
+        return <img src={url} alt={"card"} className="w-full h-full object-contain rounded-md" />;
     }
 }
 

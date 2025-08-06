@@ -35,10 +35,8 @@ export async function uploadFile(file, url, fn) {
     // if (document.querySelector('#status').innerText === 'No uploads') {
     //     document.querySelector('#status').innerHTML = '';
     // }
-    const urlStr = url.split(baseUrl)[1];
-    console.log(file, "url before fetch");
     try {
-        await fetch(`/cloud/${urlStr}`, {
+        await fetch(url, {
             method: "PUT",
             body: file,
         });
