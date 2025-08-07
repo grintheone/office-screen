@@ -3,16 +3,16 @@ import type { TSettings } from "@/features/settings";
 export const availableThemes = ["vbb", "solt", "lis", "kpd", "a78"] as const;
 export type Theme = (typeof availableThemes)[number];
 
-interface SettingsState {
+export const STORAGE_KEY = "panel_settings"
+
+export interface SettingsState {
     theme: Theme | null;
-    settings: TSettings;
+    globalEffect: TSettings["globalEffect"],
 }
 
 const initialState: SettingsState = {
     theme: null,
-    settings: {
-        globalEffect: "disabled",
-    },
+    globalEffect: "disabled",
 };
 
 const settingsSlice = createSlice({
@@ -20,22 +20,25 @@ const settingsSlice = createSlice({
     initialState,
     reducers: {
         setTheme(state, action: PayloadAction<Theme>) {
-            state.theme = action.payload;
-
             // loading existing settings
-            const storageKey = `settings_${action.payload}`;
-            const persistedSettings = localStorage.getItem(storageKey);
+            const persistedSettings = localStorage.getItem(STORAGE_KEY);
             if (persistedSettings) {
-                state.settings = JSON.parse(persistedSettings);
+                const settings: SettingsState = JSON.parse(persistedSettings)
+
+                if (settings.theme === action.payload) {
+                    return settings
+                }
             }
+
+            return { ...state, theme: action.payload }
         },
         setSettings(state, action: PayloadAction<TSettings>) {
-            state.settings = action.payload;
+            return { ...state, ...action.payload }
         },
     },
     selectors: {
         selectTheme: (state) => state.theme,
-        selectSettings: (state) => state.settings,
+        selectSettings: (state) => state,
     },
 });
 

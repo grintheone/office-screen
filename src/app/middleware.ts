@@ -1,7 +1,7 @@
 import type { Middleware, PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/app/store";
 import type { TSettings } from "@/features/settings";
-import { setSettings } from "@/features/settings/settingsSlice";
+import { STORAGE_KEY, setSettings, setTheme } from "@/features/settings/settingsSlice";
 
 // Helper function to check if action is setSettings
 function isSetSettingsAction(
@@ -10,8 +10,7 @@ function isSetSettingsAction(
     return (
         typeof action === "object" &&
         action !== null &&
-        "type" in action &&
-        action.type === setSettings.type
+        "type" in action && (action.type === setSettings.type || action.type === setTheme.type)
     );
 }
 
@@ -22,16 +21,7 @@ export const settingsPersistMiddleware: Middleware =
 
         if (isSetSettingsAction(action)) {
             const state = store.getState() as RootState;
-            const currentTheme = state.settings.theme;
-
-            if (currentTheme) {
-                // Only persist if we have a theme set
-                const storageKey = `settings_${currentTheme}`;
-                localStorage.setItem(
-                    storageKey,
-                    JSON.stringify(state.settings.settings),
-                );
-            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state.settings));
         }
 
         return result;

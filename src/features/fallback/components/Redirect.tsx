@@ -1,29 +1,27 @@
-import { Link } from "react-router";
-import { useAppDispatch } from "@/app/hooks";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import AdminIcon from "@/assets/icons/admin.svg?react";
-import { availableThemes, setTheme } from "@/features/settings/settingsSlice";
+import {
+    type SettingsState,
+    STORAGE_KEY,
+} from "@/features/settings/settingsSlice";
 
 function Redirect() {
-    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
-    const links = availableThemes.map((theme) => (
-        <Link
-            key={theme}
-            to={`/${theme}`}
-            className="text-4xl font-black"
-            style={{ color: `var(--${theme}-primary)` }}
-            onClick={() => dispatch(setTheme(theme))}
-        >
-            {theme.toUpperCase()}
-        </Link>
-    ));
+    useEffect(() => {
+        const settingsStr = localStorage.getItem(STORAGE_KEY);
+        if (settingsStr) {
+            const settings: SettingsState = JSON.parse(settingsStr);
+            navigate(`/${settings.theme}`);
+        }
+    }, [navigate]);
 
     return (
         <div className="bg-black min-h-screen flex flex-col items-center justify-center gap-6">
             <h2 className="font-bold text-3xl text-white">
-                Выберите вашу организацию:
+                Допишите в адресную строку вашу организацию /org
             </h2>
-            <div className="flex gap-4">{links}</div>
             <p className="font-bold text-2xl text-white">
                 Для управления панелью, допишите в конце адреса /admin
             </p>
