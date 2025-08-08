@@ -1,4 +1,4 @@
-const baseUrl = "https://s3.storage.vbest.ru/";
+export const baseCloudUrl = "https://s3.int.best/office-screen";
 
 // `upload` iterates through all files selected and invokes a helper function called `retrieveNewURL`.
 export function upload(fn: (url: string) => void) {

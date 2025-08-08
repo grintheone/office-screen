@@ -47,7 +47,7 @@ const BackgroundWrapper = ({ currentOrg, children }: Props) => {
 
     return (
         <main
-            className={`${currentOrg}-theme bg-black min-h-screen relative`}
+            className={`${currentOrg}-theme bg-black min-h-screen relative overflow-hidden`}
             style={{ textShadow: "0 2.5px 2.5px #000" }}
         >
             {children}

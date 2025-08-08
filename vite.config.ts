@@ -21,7 +21,7 @@ export default defineConfig({
                 rewrite: (path) => path.replace(/^\/api/, '')
             },
             '/cloud': {
-                target: 'https://s3.storage.vbest.ru',
+                target: 'https://s3.int.best',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/cloud/, ''),
             }
