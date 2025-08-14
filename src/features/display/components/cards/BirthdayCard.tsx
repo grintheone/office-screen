@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAppDispatch } from "@/app/hooks";
-import hat from "@/assets/videos/hat.mp4";
+import hat from "@/assets/videos/hat.webm";
 import { setEffect } from "@/features/display/displaySlice";
 import { useS3Media } from "@/hooks/useS3Media";
 import type { BirthdayDocument } from "@/services/AdminService";
