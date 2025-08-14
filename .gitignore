@@ -13,6 +13,8 @@ dist-ssr
 *.local
 
 # Editor directories and files
+/src/features/display/bdays.json
+webm-originals.zip
 .vscode/*
 !.vscode/extensions.json
 .idea

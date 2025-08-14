@@ -1,10 +1,10 @@
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import confetti from "@/assets/videos/confetti.webm";
-import fireworks from "@/assets/videos/fireworks.webm";
-import backgroundKpd from "@/assets/videos/kpd_bck.webm";
-import backgroundLis from "@/assets/videos/lis_bck.webm";
-import backgroundDefault from "@/assets/videos/solt_bck.webm";
-import backgroundVbb from "@/assets/videos/vbb_bck.webm";
+import confetti from "@/assets/videos/confetti.mp4";
+import fireworks from "@/assets/videos/fireworks.mp4";
+import backgroundKpd from "@/assets/videos/kpd_bck.mp4";
+import backgroundLis from "@/assets/videos/lis_bck.mp4";
+import backgroundDefault from "@/assets/videos/solt_bck.mp4";
+import backgroundVbb from "@/assets/videos/vbb_bck.mp4";
 
 import {
     selectCurrentEffect,
