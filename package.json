@@ -5,8 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build && npm run babelify",
-        "babelify": "babel dist --out-dir dist --extensions \".js,.mjs\" --ignore \"node_modules\"",
+        "build": "vite build",
         "lint": "eslint .",
         "preview": "vite preview"
     },

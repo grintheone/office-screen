@@ -23,7 +23,7 @@ function Hands() {
     const minuteRotation = minutes * 6;
     const hourRotation = hours * 30 + minutes * 0.5;
 
-    const secondHandClasses = `${org === "vbb" ? "bg-white" : "bg-primary"} absolute top-1/2 left-1/2 w-0.5  origin-bottom -translate-x-1/2 -translate-y-1/2 z-10 rounded-full`;
+    const secondHandClasses = `${org === "vbb" ? "bg-white" : "bg-primary"} absolute top-1/2 left-1/2 w-0.5  origin-bottom z-10 rounded-full`;
 
     return (
         <>
@@ -33,9 +33,9 @@ function Hands() {
             </div>
             {/* Hour Hand */}
             <div
-                className="absolute top-1/2 left-1/2 w-1 h-[100px] bg-white origin-bottom -translate-x-1/2 -translate-y-1/2 z-10 rounded-full"
+                className="absolute top-1/2 left-1/2 w-1 h-[100px] bg-white origin-bottom z-10 rounded-full"
                 style={{
-                    transform: `translate(-50%, -50%) rotate(${hourRotation}deg)`,
+                    transform: `translate(-100%, -100%) rotate(${hourRotation}deg)`,
                 }}
             >
                 <div className="relative left-[-4px] w-3 h-[75px] bg-white rounded-full shadow"></div>
@@ -43,9 +43,9 @@ function Hands() {
 
             {/* Minute Hand */}
             <div
-                className="absolute top-1/2 left-1/2 w-1 h-[165px] bg-white origin-bottom -translate-x-1/2 -translate-y-1/2 z-10 rounded-full"
+                className="absolute top-1/2 left-1/2 w-1 h-[165px] bg-white origin-bottom z-10 rounded-full"
                 style={{
-                    transform: `translate(-50%, -50%) rotate(${minuteRotation}deg)`,
+                    transform: `translate(-100%, -100%) rotate(${minuteRotation}deg)`,
                 }}
             >
                 <div className="relative left-[-4px] w-3 h-[140px] bg-white rounded-full shadow"></div>
@@ -55,14 +55,14 @@ function Hands() {
             <div
                 className={secondHandClasses}
                 style={{
-                    transform: `translate(-50%, -50%) rotate(${secondRotation}deg)`,
+                    transform: `translate(-100%, -100%) rotate(${secondRotation}deg)`,
                     height: "175px",
                 }}
             />
             <div
                 className={secondHandClasses}
                 style={{
-                    transform: `translate(-50%, -50%) rotate(${secondRotation - 180}deg)`,
+                    transform: `translate(-100%, -100%) rotate(${secondRotation - 180}deg)`,
                     height: "16px",
                 }}
             />

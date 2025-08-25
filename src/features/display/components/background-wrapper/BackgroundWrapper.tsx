@@ -47,7 +47,7 @@ const BackgroundWrapper = ({ currentOrg, children }: Props) => {
 
     return (
         <main
-            className={`${currentOrg}-theme bg-black min-h-screen relative overflow-hidden`}
+            className={`${currentOrg}-theme bg-black min-h-screen min-w-screen relative overflow-hidden z-0`}
             style={{ textShadow: "0 2.5px 2.5px #000" }}
         >
             {children}
@@ -56,10 +56,12 @@ const BackgroundWrapper = ({ currentOrg, children }: Props) => {
                 className="absolute inset-0 size-full object-cover"
                 style={currentOrg === "a78" ? {
                     filter: "hue-rotate(30deg) saturate(1.3)",
-                    WebkitFilter: "hue-rotate(30deg) saturate(1.3)"
+                    WebkitFilter: "hue-rotate(30deg) saturate(1.3)",
                 } : undefined}
+                preload="auto"
                 autoPlay
                 muted
+                playsInline
                 loop
             />
             <video
@@ -69,6 +71,7 @@ const BackgroundWrapper = ({ currentOrg, children }: Props) => {
                         ? { filter: `hue-rotate(${Math.random() * 360}deg)` }
                         : undefined
                 }
+                preload="auto"
                 src={getCurrentEffectSrc(currentEffect)}
                 onEnded={handleEffectEnd}
                 autoPlay

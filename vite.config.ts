@@ -7,24 +7,13 @@ import svgr from "vite-plugin-svgr";
 
 // https://vite.dev/config/
 export default defineConfig({
-    build: {
-        modulePreload: {
-            polyfill: true,
-        },
-        rollupOptions: {
-            output: {
-                manualChunks: undefined, // Single bundle = easier for Babel
-            },
-        },
-    },
     plugins: [
         react(),
         tailwindcss(),
         svgr(),
         legacy({
             targets: ["defaults", "not IE 11"],
-            additionalLegacyPolyfills: ['regenerator-runtime/runtime']
-        }),
+        })
     ],
     resolve: {
         alias: {
