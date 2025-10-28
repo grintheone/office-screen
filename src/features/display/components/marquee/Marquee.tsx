@@ -4,10 +4,12 @@ import InnerCurrencyBlock from "@/features/display/components/marquee/InnerCurre
 import NewsBlock from "@/features/display/components/marquee/NewsBlock";
 import TrafficBlock from "@/features/display/components/marquee/TrafficBlock";
 import WeatherBlock from "@/features/display/components/marquee/WeatherBlock";
+import type { Theme } from "@/features/settings/settingsSlice";
 import type { ParserDataItem } from "@/hooks/useParserData";
 
 type Props = {
     data: ParserDataItem[];
+    currentOrg: Theme
 };
 
 function getBlockById(item: ParserDataItem) {
@@ -25,13 +27,13 @@ function getBlockById(item: ParserDataItem) {
     }
 }
 
-function Marquee({ data }: Props) {
+function Marquee({ data, currentOrg }: Props) {
     if (data.length === 0) return null;
 
     const renderItems = data.map((item) => getBlockById(item));
 
     return (
-        <Marq className="z-50" autoFill={true} gradient gradientColor="#000" speed={40}>
+        <Marq className="z-50" autoFill={true} gradient={currentOrg === "a78"} gradientColor="#000" speed={40}>
             {renderItems}
         </Marq>
     );

@@ -20,7 +20,7 @@ function Display() {
 
     return (
         <BackgroundWrapper currentOrg={org as Theme}>
-            <Marquee data={parserData} />
+            <Marquee data={parserData} currentOrg={org as Theme} />
             <div className="absolute inset-0 z-10 w-full h-full flex">
                 <MainFeed adminData={data} parserData={parserData} />
                 <ClockFeed adminData={data} kBirthdays={kBirthdays} />

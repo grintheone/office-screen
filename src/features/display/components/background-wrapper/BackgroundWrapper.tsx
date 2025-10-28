@@ -1,7 +1,9 @@
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import backgroundA78 from "@/assets/videos/a78_bck.webm";
 import confetti from "@/assets/videos/confetti.webm";
 import fireworks from "@/assets/videos/fireworks.webm";
-import backgroundKpd from "@/assets/videos/kpd_bck.mp4";
+// import backgroundKpd from "@/assets/videos/kpd_bck.mp4";
+import backgroundKpd from "@/assets/videos/kpd_bck.webm";
 import backgroundLis from "@/assets/videos/lis_bck.mp4";
 import backgroundDefault from "@/assets/videos/solt_bck.mp4";
 import backgroundVbb from "@/assets/videos/vbb_bck.mp4";
@@ -18,7 +20,7 @@ const backgrounds = {
     solt: backgroundDefault,
     lis: backgroundLis,
     kpd: backgroundKpd,
-    a78: backgroundDefault,
+    a78: backgroundA78,
 };
 
 function getCurrentEffectSrc(effect: VideoEffects) {
