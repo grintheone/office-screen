@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAppDispatch } from "@/app/hooks";
 import { videoFormats } from "@/features/admin/adminSlice";
 import { setEffect, setVideoSlideState } from "@/features/display/displaySlice";
@@ -7,8 +7,9 @@ import type { InfoDocument } from "@/services/AdminService";
 
 function InfoCard(doc: InfoDocument) {
     const dispatch = useAppDispatch();
-    const [isVideo, setIsVideo] = useState(false);
     const s3media = useS3Media(doc.media);
+    const hasMedia = s3media.length > 0;
+    const isVideo = hasMedia && videoFormats.some((format) => s3media.includes(format));
 
     useEffect(() => {
         if (doc.effect === "none") {
@@ -23,22 +24,18 @@ function InfoCard(doc: InfoDocument) {
     }, [dispatch, doc.effect]);
 
     useEffect(() => {
-        if (!s3media) return;
-
-        const isVideoFile = videoFormats.some((format) => s3media.includes(format));
-
-        setIsVideo(isVideoFile);
-
-        if (!isVideoFile) {
-            const timer = setTimeout(() => {
-                dispatch(setVideoSlideState("finished"));
-            }, 15000);
-
-            return () => {
-                clearTimeout(timer);
-            };
+        if (isVideo) {
+            return;
         }
-    }, [s3media, dispatch]);
+
+        const timer = setTimeout(() => {
+            dispatch(setVideoSlideState("finished"));
+        }, 15000);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [dispatch, isVideo, s3media]);
 
     return (
         <div className="flex flex-col gap-8 max-w-4xl animate-rotate-y" key={doc.media}>
@@ -48,18 +45,19 @@ function InfoCard(doc: InfoDocument) {
                     className="max-h-[600px] size-full object-left object-contain rounded-xl"
                     onLoadedData={() => dispatch(setVideoSlideState("started"))}
                     onEnded={() => dispatch(setVideoSlideState("finished"))}
+                    onError={() => dispatch(setVideoSlideState("finished"))}
                     src={s3media ? s3media : undefined}
                     preload="auto"
                     autoPlay
                     muted
                 />
-            ) : (
+            ) : hasMedia ? (
                 <img
                     className={`${!doc.text && doc.text.length === 0 ? "max-h-[600px]" : "max-h-[500px]"} size-full object-left object-contain rounded-xl`}
                     src={s3media ? s3media : undefined}
                     alt="card"
                 />
-            )}
+            ) : null}
         </div>
     );
 }
