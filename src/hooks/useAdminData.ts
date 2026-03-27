@@ -1,50 +1,33 @@
 import { format } from "date-fns";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Theme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
+import { sortDocumentsByOrder } from "@/lib/adminDocuments";
 import type {
     AnyDocument,
 } from "@/services/AdminService";
 
-function checkElement(docs: AnyDocument[], change: AnyDocument) {
-    const index = docs.findIndex((item) => item._id === change._id);
-    if (index === -1) return [...docs, change]; // not found, add
-
-    const updatedItems = [...docs];
-    updatedItems[index] = { ...updatedItems[index], ...change }; // update existing
-    return updatedItems;
-}
-
-function getRandomElements<T>(array: T[], count: number): T[] {
+function getOrderedElements<T>(array: T[], count: number): T[] {
     if (!Array.isArray(array) || array.length === 0) {
         return []
     }
 
-    // If count is 0, return a single random element
+    // Preserve the previous behavior of showing at least one quote when quotes exist.
     if (count === 0) {
-        const randomIndex = Math.floor(Math.random() * array.length);
-        return [array[randomIndex]];
+        return [array[0]];
     }
 
     // Make sure we don't try to get more elements than exist in the array
     const actualCount = Math.min(Math.abs(count), array.length);
 
-    // Create a copy of the array to avoid mutating the original
-    const shuffled = [...array];
-
-    // Fisher-Yates shuffle algorithm
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-
     // Return the first 'actualCount' elements
-    return shuffled.slice(0, actualCount);
+    return array.slice(0, actualCount);
 }
 
 export function useAdminData(org: Theme) {
     const service = useAdminService();
     const [data, setData] = useState<AnyDocument[]>([]);
+    const refetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const fetchData = useCallback(async () => {
         if (!service) return;
@@ -78,10 +61,17 @@ export function useAdminData(org: Theme) {
                 use_index: "today_docs_by_org",
             });
 
-            const selectedQuotes = getRandomElements(quotes.docs, showNow.docs.length + showToday.docs.length)
+            const selectedQuotes = getOrderedElements(
+                sortDocumentsByOrder(quotes.docs as AnyDocument[]),
+                showNow.docs.length + showToday.docs.length,
+            )
 
-            const result = [...showNow.docs, ...selectedQuotes, ...showToday.docs];
-            setData(result as AnyDocument[]);
+            const result = sortDocumentsByOrder([
+                ...(showNow.docs as AnyDocument[]),
+                ...(selectedQuotes as AnyDocument[]),
+                ...(showToday.docs as AnyDocument[]),
+            ]);
+            setData(result);
         } catch (err) {
             console.error("Failed to fetch data:", err);
         }
@@ -89,6 +79,17 @@ export function useAdminData(org: Theme) {
 
     useEffect(() => {
         if (!service) return;
+
+        const scheduleRefetch = () => {
+            if (refetchTimeoutRef.current) {
+                clearTimeout(refetchTimeoutRef.current);
+            }
+
+            refetchTimeoutRef.current = setTimeout(() => {
+                void fetchData();
+                refetchTimeoutRef.current = null;
+            }, 100);
+        };
 
         // Initial fetch
         fetchData();
@@ -103,7 +104,7 @@ export function useAdminData(org: Theme) {
             })
             .on("change", (change) => {
                 if (change.deleted) {
-                    setData((prev) => prev.filter((item) => item._id !== change.id));
+                    scheduleRefetch();
                     return;
                 }
 
@@ -117,17 +118,17 @@ export function useAdminData(org: Theme) {
                     }
 
                     if (doc.type === "quote") {
-                        setData((prevItems) => checkElement(prevItems, doc));
+                        scheduleRefetch();
                         return
                     }
 
                     if ((doc.type === "info" || doc.type === "clock") && doc.showNow) {
-                        setData((prevItems) => checkElement(prevItems, doc));
+                        scheduleRefetch();
                         return
                     }
 
                     if ((doc.type === "birthday" || doc.type === "holiday") && doc.displayDate === today) {
-                        setData((prevItems) => checkElement(prevItems, doc));
+                        scheduleRefetch();
                         return
                     }
                 }
@@ -137,6 +138,9 @@ export function useAdminData(org: Theme) {
             });
 
         return () => {
+            if (refetchTimeoutRef.current) {
+                clearTimeout(refetchTimeoutRef.current);
+            }
             changes.cancel();
         };
     }, [service, fetchData, org]);

@@ -41,14 +41,65 @@ function assembleParserSlides(parserData: ParserDataItem[]) {
     return slides;
 }
 
+function sprinkleQuotesBetweenCards(adminData: AnyDocument[]) {
+    const displayableDocs = adminData.filter((doc) => {
+        if (doc.type === "clock") {
+            return false;
+        }
+
+        if (doc.type === "birthday") {
+            return doc.showInMainFeed;
+        }
+
+        return true;
+    });
+
+    const quotes = displayableDocs.filter((doc) => doc.type === "quote");
+    const nonQuotes = displayableDocs.filter((doc) => doc.type !== "quote");
+
+    if (quotes.length === 0) {
+        return nonQuotes;
+    }
+
+    if (nonQuotes.length === 0) {
+        return quotes;
+    }
+
+    if (nonQuotes.length === 1) {
+        return [nonQuotes[0], ...quotes];
+    }
+
+    const result: AnyDocument[] = [];
+    let insertedQuotes = 0;
+    const gaps = nonQuotes.length - 1;
+
+    nonQuotes.forEach((doc, index) => {
+        result.push(doc);
+
+        if (index === nonQuotes.length - 1) {
+            return;
+        }
+
+        const targetQuotesInserted = Math.round(
+            ((index + 1) * quotes.length) / gaps,
+        );
+
+        while (insertedQuotes < targetQuotesInserted) {
+            result.push(quotes[insertedQuotes]);
+            insertedQuotes += 1;
+        }
+    });
+
+    return result;
+}
+
 function assembleAdminSlides(adminData: AnyDocument[]) {
     const slides: Slide[] = [];
+    const mixedDocs = sprinkleQuotesBetweenCards(adminData);
 
-    const shuffled = shuffleArrayWithNoConsecutiveTypes(adminData);
-
-    shuffled.forEach((doc) => {
+    mixedDocs.forEach((doc) => {
         switch (true) {
-            case doc.type === "birthday" && doc.showInMainFeed:
+            case doc.type === "birthday":
                 slides.push({
                     component: <BirthdayCard {...doc} />,
                     duration: 10000,
@@ -78,47 +129,6 @@ function assembleAdminSlides(adminData: AnyDocument[]) {
     });
 
     return slides;
-}
-
-function shuffleArrayWithNoConsecutiveTypes(array: AnyDocument[]) {
-    // Fisher-Yates shuffle
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-
-    // Ensure no two consecutive objects have the same 'type'
-    for (let i = 1; i < array.length; i++) {
-        if (array[i].type === array[i - 1].type) {
-            // Find a new position to swap
-            let swapIndex = -1;
-            for (let j = i + 1; j < array.length; j++) {
-                if (array[j].type !== array[i - 1].type) {
-                    swapIndex = j;
-                    break;
-                }
-            }
-            // If no suitable element found, try before
-            if (swapIndex === -1) {
-                for (let j = 0; j < i - 1; j++) {
-                    if (array[j].type !== array[i].type) {
-                        swapIndex = j;
-                        break;
-                    }
-                }
-            }
-            // Swap if possible
-            if (swapIndex !== -1) {
-                [array[i], array[swapIndex]] = [array[swapIndex], array[i]];
-            } else {
-                console.warn(
-                    "Could not avoid consecutive types. Some duplicates may remain.",
-                );
-            }
-        }
-    }
-
-    return array;
 }
 
 type Props = {

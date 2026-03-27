@@ -13,6 +13,7 @@ export interface Document {
     _id: string;
     _rev?: string;
     org: Organization | "all";
+    order?: number;
 }
 
 export interface InfoDocument extends Document {

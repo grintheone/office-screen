@@ -23,7 +23,7 @@ function InfoCard(doc: InfoDocument) {
     }, [dispatch, doc.effect]);
 
     useEffect(() => {
-        if (!s3media) return
+        if (!s3media) return;
 
         const isVideoFile = videoFormats.some((format) => s3media.includes(format));
 
@@ -42,9 +42,7 @@ function InfoCard(doc: InfoDocument) {
 
     return (
         <div className="flex flex-col gap-8 max-w-4xl animate-rotate-y" key={doc.media}>
-            <div className="text-3xl text-white animate-slide-up opacity-0 whitespace-pre-wrap">
-                {doc.text}
-            </div>
+            <div className="text-3xl text-white animate-slide-up opacity-0 whitespace-pre-wrap">{doc.text}</div>
             {isVideo ? (
                 <video
                     className="max-h-[600px] size-full object-left object-contain rounded-xl"
