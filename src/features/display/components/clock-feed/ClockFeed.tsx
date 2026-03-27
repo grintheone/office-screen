@@ -21,7 +21,7 @@ function assembleAdminSlides(
 
 	// Counting something down
 	const now = Date.now();
-	const countdownDate = new Date("Nov 4, 2025").getTime();
+	const countdownDate = new Date("Jan 1, 2026").getTime();
 	if (now < countdownDate) {
 		const distance = countdownDate - now;
 		if (distance > 0) {

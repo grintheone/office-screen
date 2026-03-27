@@ -12,7 +12,7 @@ export interface SettingsState {
 
 const initialState: SettingsState = {
     theme: null,
-    globalEffect: "disabled",
+    globalEffect: "snow",
 };
 
 const settingsSlice = createSlice({

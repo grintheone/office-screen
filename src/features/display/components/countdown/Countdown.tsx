@@ -1,4 +1,4 @@
-import background from "@/assets/images/day-of-unity.jpg";
+import background from "@/assets/images/new-year.jpg";
 
 const DAY_WORDS = ["день", "дня", "дней"];
 
@@ -21,11 +21,15 @@ function Countdown({ daysLeft }: { daysLeft: number }) {
 			/>
 			<div className="absolute inset-0 text-white font-semibold flex flex-col items-center justify-baseline">
 				<div className="flex flex-col items-center gap-2">
-					<div className="text-[180px] h-[190px]">{daysLeft}</div>
-					<div className="text-3xl mt-4">{getDayWord(daysLeft)} до</div>
+					<div className="text-[180px] h-[190px] text-[#C5AC58]">
+						{daysLeft}
+					</div>
+					<div className="text-3xl mt-4 text-[#C5AC58]">
+						{getDayWord(daysLeft)}
+					</div>
 				</div>
-				<div className="text-3xl w-80 text-center mt-8">
-					Дня народного единства
+				<div className="text-3xl w-80 text-center mt-4 text-[#C5AC58]">
+					до Нового Года!
 				</div>
 			</div>
 		</div>
