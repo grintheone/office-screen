@@ -7,7 +7,6 @@ import MainFeed from "@/features/display/components/main-feed/MainFeed";
 import Marquee from "@/features/display/components/marquee/Marquee";
 import { selectTheme, type Theme } from "@/features/settings/settingsSlice";
 import { useAdminData } from "@/hooks/useAdminData";
-import { useGetDailyBirthdays } from "@/hooks/useGetDailyBirthdays";
 import { useGlobalEffect } from "@/hooks/useGlobalEffect";
 import { useParserData } from "@/hooks/useParserData";
 
@@ -16,14 +15,13 @@ function Display() {
     const org = useAppSelector(selectTheme);
     const parserData = useParserData();
     const data = useAdminData(org as Theme);
-    const kBirthdays = useGetDailyBirthdays(org as Theme);
 
     return (
         <BackgroundWrapper currentOrg={org as Theme}>
             <Marquee data={parserData} currentOrg={org as Theme} />
             <div className="absolute inset-0 z-10 w-full h-full flex">
                 <MainFeed adminData={data} parserData={parserData} />
-                <ClockFeed adminData={data} kBirthdays={kBirthdays} />
+                <ClockFeed adminData={data} />
             </div>
             <Link to={`${location.href}/admin`}>
                 <AdminIcon className="size-10 text-primary absolute z-10 bottom-8 left-8 opacity-30 hover:opacity-100" />

@@ -7,15 +7,11 @@ import { z } from "zod";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import DisplayIcon from "@/assets/icons/screen.svg?react";
 import SettingsIcon from "@/assets/icons/settings.svg?react";
+import { getBirthdaysFromFile } from "@/lib/kubaBirthdays";
+import ListIcon from "@/assets/icons/list.svg?react";
+import { useAdminService } from "@/hooks/useAdminService";
 import { Button } from "@/components/ui/button";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
     Sheet,
@@ -26,11 +22,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-    selectSettings,
-    selectTheme,
-    setSettings,
-} from "@/features/settings/settingsSlice";
+import { selectSettings, selectTheme, setSettings } from "@/features/settings/settingsSlice";
 
 const FormSchema = z.object({
     globalEffect: z.enum(["disabled", "snow", "flowers"], {
@@ -41,6 +33,7 @@ const FormSchema = z.object({
 export type TSettings = z.infer<typeof FormSchema>;
 
 function Settings() {
+    const admin = useAdminService();
     const dispatch = useAppDispatch();
     const currentSettings = useAppSelector(selectSettings);
     const [open, setOpen] = useState(false);
@@ -62,6 +55,18 @@ function Settings() {
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <div className="flex items-center gap-4">
+                {org === "vbb" && (
+                    <button
+                        className="disabled:opacity-20 hover:animate-scale-up cursor-pointer disabled:cursor-default"
+                        onClick={() => {
+                            const b = getBirthdaysFromFile();
+                            admin?.batchInsert(b);
+                            toast("Дни рождения импортированы");
+                        }}
+                    >
+                        <ListIcon className="size-10 text-primary" />
+                    </button>
+                )}
                 <Link to={`../${org}`}>
                     <DisplayIcon className="size-10 text-primary hover:animate-scale-up" />
                 </Link>
@@ -74,18 +79,13 @@ function Settings() {
                     <SheetTitle className="text-xl">Настройки панели</SheetTitle>
                     <SheetDescription asChild>
                         <Form {...form}>
-                            <form
-                                onSubmit={form.handleSubmit(onSubmit)}
-                                className="h-full flex flex-col"
-                            >
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
                                 <FormField
                                     control={form.control}
                                     name="globalEffect"
                                     render={({ field }) => (
                                         <FormItem className="space-y-3">
-                                            <FormLabel className="text-lg">
-                                                Глобальный эффект
-                                            </FormLabel>
+                                            <FormLabel className="text-lg">Глобальный эффект</FormLabel>
                                             <FormControl>
                                                 <RadioGroup
                                                     onValueChange={field.onChange}

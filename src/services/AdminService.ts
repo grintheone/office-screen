@@ -9,6 +9,10 @@ PouchDB.plugin(PouchDBFind);
 
 type Organization = Theme;
 
+function isBulkDocsError(response: PouchDB.Core.Response | PouchDB.Core.Error): response is PouchDB.Core.Error {
+    return !("ok" in response) || response.ok !== true;
+}
+
 export interface Document {
     _id: string;
     _rev?: string;
@@ -17,7 +21,7 @@ export interface Document {
 }
 
 export interface InfoDocument extends Document {
-    type: Extract<AdminContentTypes, "info">,
+    type: Extract<AdminContentTypes, "info">;
     text: string;
     media: string;
     effect: VideoEffects;
@@ -25,7 +29,7 @@ export interface InfoDocument extends Document {
 }
 
 export interface HolidayDocument extends Document {
-    type: Extract<AdminContentTypes, "holiday">,
+    type: Extract<AdminContentTypes, "holiday">;
     title: string;
     displayDate: string;
     image: string;
@@ -33,13 +37,13 @@ export interface HolidayDocument extends Document {
 }
 
 export interface QuoteDocument extends Document {
-    type: Extract<AdminContentTypes, "quote">,
+    type: Extract<AdminContentTypes, "quote">;
     author: string;
     text: string;
 }
 
 export interface BirthdayDocument extends Document {
-    type: Extract<AdminContentTypes, "birthday">,
+    type: Extract<AdminContentTypes, "birthday">;
     name: string;
     displayDate: string;
     showInMainFeed: boolean;
@@ -47,13 +51,13 @@ export interface BirthdayDocument extends Document {
 }
 
 export interface ClockDocument extends Document {
-    type: Extract<AdminContentTypes, "clock">,
+    type: Extract<AdminContentTypes, "clock">;
     text: string;
     image: string;
-    showNow: boolean
+    showNow: boolean;
 }
 
-export type AnyDocument = InfoDocument | HolidayDocument | QuoteDocument | BirthdayDocument | ClockDocument
+export type AnyDocument = InfoDocument | HolidayDocument | QuoteDocument | BirthdayDocument | ClockDocument;
 
 class AdminService extends SyncService {
     constructor() {
@@ -69,20 +73,20 @@ class AdminService extends SyncService {
             });
             await this.getLocalDb().createIndex({
                 index: {
-                    fields: ['displayDate', 'org'],
-                    ddoc: "today_docs_by_org"
+                    fields: ["displayDate", "org"],
+                    ddoc: "today_docs_by_org",
                 },
             });
             await this.getLocalDb().createIndex({
                 index: {
-                    fields: ['showNow', 'org'],
-                    ddoc: "showNow_by_org"
+                    fields: ["showNow", "org"],
+                    ddoc: "showNow_by_org",
                 },
             });
             await this.getLocalDb().createIndex({
                 index: {
-                    fields: ['type', 'org'],
-                    ddoc: "quotes_by_org"
+                    fields: ["type", "org"],
+                    ddoc: "quotes_by_org",
                 },
             });
         } catch (error) {
@@ -113,9 +117,41 @@ class AdminService extends SyncService {
     async deleteDocument(docId: string, docRev: string) {
         try {
             const res = await this.getLocalDb().remove(docId, docRev);
-            return { id: res.id }
+            return { id: res.id };
         } catch (error) {
-            console.error('Deletion failed:', error);
+            console.error("Deletion failed:", error);
+            throw error;
+        }
+    }
+
+    async batchInsert<T extends AnyDocument>(docs: T[]): Promise<T[]> {
+        try {
+            if (docs.length === 0) {
+                return [];
+            }
+
+            const responses = await this.getLocalDb().bulkDocs<T>(docs);
+            const errors = responses.filter(isBulkDocsError);
+
+            if (errors.length > 0) {
+                const details = errors
+                    .map((error) => {
+                        const id = error.id ? `${error.id}: ` : "";
+                        return `${id}${error.reason || error.message || error.name || "unknown error"}`;
+                    })
+                    .join(", ");
+
+                throw new Error(`Batch insert failed for ${errors.length} document(s): ${details}`);
+            }
+
+            const revisionsById = new Map(responses.map((response) => [response.id, response.rev]));
+
+            return docs.map((doc) => ({
+                ...doc,
+                _rev: revisionsById.get(doc._id) || doc._rev,
+            })) as T[];
+        } catch (error) {
+            console.error("Batch insert failed:", error);
             throw error;
         }
     }

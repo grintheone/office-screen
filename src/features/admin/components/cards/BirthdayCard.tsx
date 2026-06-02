@@ -25,9 +25,9 @@ function BirthdayCard(doc: BirthdayDocument) {
                             alt=""
                         />
                     ) : (
-                        <PersonIcon className="size-16 text-primary/50" />
+                        <PersonIcon className="size-16 text-primary/50 shrink-0" />
                     )}
-                    <div>{doc.name}</div>
+                    <div className="text-left">{doc.name}</div>
                 </div>
                 <div>{new Date(doc.displayDate).toLocaleDateString()}</div>
             </DialogTrigger>
