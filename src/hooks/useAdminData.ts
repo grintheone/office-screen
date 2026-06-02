@@ -7,23 +7,6 @@ import type {
     AnyDocument,
 } from "@/services/AdminService";
 
-function getOrderedElements<T>(array: T[], count: number): T[] {
-    if (!Array.isArray(array) || array.length === 0) {
-        return []
-    }
-
-    // Preserve the previous behavior of showing at least one quote when quotes exist.
-    if (count === 0) {
-        return [array[0]];
-    }
-
-    // Make sure we don't try to get more elements than exist in the array
-    const actualCount = Math.min(Math.abs(count), array.length);
-
-    // Return the first 'actualCount' elements
-    return array.slice(0, actualCount);
-}
-
 export function useAdminData(org: Theme) {
     const service = useAdminService();
     const [data, setData] = useState<AnyDocument[]>([]);
@@ -61,14 +44,9 @@ export function useAdminData(org: Theme) {
                 use_index: "today_docs_by_org",
             });
 
-            const selectedQuotes = getOrderedElements(
-                sortDocumentsByOrder(quotes.docs as AnyDocument[]),
-                showNow.docs.length + showToday.docs.length,
-            )
-
             const result = sortDocumentsByOrder([
                 ...(showNow.docs as AnyDocument[]),
-                ...(selectedQuotes as AnyDocument[]),
+                ...(quotes.docs as AnyDocument[]),
                 ...(showToday.docs as AnyDocument[]),
             ]);
             setData(result);
