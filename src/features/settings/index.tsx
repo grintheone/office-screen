@@ -25,7 +25,7 @@ import {
 import { selectSettings, selectTheme, setSettings } from "@/features/settings/settingsSlice";
 
 const FormSchema = z.object({
-    globalEffect: z.enum(["disabled", "snow", "flowers"], {
+    globalEffect: z.enum(["disabled", "snow", "flowers", "leaf"], {
         error: "Выберите один из вариантов",
     }),
 });
@@ -63,6 +63,7 @@ function Settings() {
                             admin?.batchInsert(b);
                             toast("Дни рождения импортированы");
                         }}
+                        disabled
                     >
                         <ListIcon className="size-10 text-primary" />
                     </button>
@@ -109,6 +110,12 @@ function Settings() {
                                                             <RadioGroupItem value="flowers" />
                                                         </FormControl>
                                                         <FormLabel>Цветопад</FormLabel>
+                                                    </FormItem>
+                                                    <FormItem className="flex items-center gap-3">
+                                                        <FormControl>
+                                                            <RadioGroupItem value="leaf" />
+                                                        </FormControl>
+                                                        <FormLabel>Листопад</FormLabel>
                                                     </FormItem>
                                                 </RadioGroup>
                                             </FormControl>
