@@ -3,9 +3,10 @@ import background from "@/assets/images/clock-bday.png"
 
 type Props = {
     names: string[]
+    hasWeekendBirthdays: boolean
 }
 
-function ClockBirthdays({ names }: Props) {
+function ClockBirthdays({ names, hasWeekendBirthdays }: Props) {
     const birthdays = names.map(name => <li key={nanoid()}>{name}</li>)
 
     return (
@@ -13,7 +14,9 @@ function ClockBirthdays({ names }: Props) {
             className={`relative size-[450px] bg-cover bg-center font-bold text-xl leading-6 text-shadow-sm`}
             style={{ backgroundImage: `url(${background})` }}
         >
-            <div className="text-[#90723f] absolute text-center top-24 left-1/2 -translate-x-1/2">Дни рождения сегодня:</div>
+            <div className="text-[#90723f] absolute text-center top-24 left-1/2 -translate-x-1/2">
+                {hasWeekendBirthdays ? "Дни рождения:" : "Дни рождения сегодня:"}
+            </div>
             <ul
                 className="size-full flex flex-col gap-1 items-center justify-center"
                 style={{ marginTop: names.length > 5 ? `${names.length * 4}px` : undefined }}

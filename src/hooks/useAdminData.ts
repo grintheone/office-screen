@@ -1,8 +1,10 @@
-import { format } from "date-fns";
+import { addDays, format, startOfDay } from "date-fns";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Theme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import { sortDocumentsByOrder } from "@/lib/adminDocuments";
+import { getBirthdayMonthDay } from "@/lib/birthdays";
+import { getClockBirthdayDates } from "@/lib/clockBirthdays";
 import type {
     AnyDocument,
 } from "@/services/AdminService";
@@ -16,7 +18,8 @@ export function useAdminData(org: Theme) {
         if (!service) return;
 
         try {
-            const today = format(new Date(), "yyyy-MM-dd");
+            const birthdayDates = getClockBirthdayDates();
+            const today = birthdayDates[0];
 
             const db = service.getLocalDb();
 
@@ -44,10 +47,24 @@ export function useAdminData(org: Theme) {
                 use_index: "today_docs_by_org",
             });
 
+            const birthdays = await db.find({
+                selector: {
+                    type: "birthday",
+                    org: { $in: ["all", org] },
+                },
+                use_index: "quotes_by_org",
+            });
+            const birthdayMonthDays = birthdayDates.map(getBirthdayMonthDay);
+
             const result = sortDocumentsByOrder([
                 ...(showNow.docs as AnyDocument[]),
                 ...(quotes.docs as AnyDocument[]),
-                ...(showToday.docs as AnyDocument[]),
+                ...(showToday.docs as AnyDocument[]).filter((doc) =>
+                    doc.type !== "birthday",
+                ),
+                ...(birthdays.docs as AnyDocument[]).filter((doc) =>
+                    doc.type === "birthday" && birthdayMonthDays.includes(getBirthdayMonthDay(doc.displayDate)),
+                ),
             ]);
             setData(result);
         } catch (err) {
@@ -72,6 +89,17 @@ export function useAdminData(org: Theme) {
         // Initial fetch
         fetchData();
 
+        // Refresh date-based content when a screen stays open overnight.
+        let midnightTimeout: ReturnType<typeof setTimeout>;
+        const scheduleMidnightRefresh = () => {
+            const now = new Date();
+            midnightTimeout = setTimeout(() => {
+                void fetchData();
+                scheduleMidnightRefresh();
+            }, startOfDay(addDays(now, 1)).getTime() - now.getTime());
+        };
+        scheduleMidnightRefresh();
+
         // Set up changes subscription
         const db = service.getLocalDb();
         const changes = db
@@ -88,7 +116,7 @@ export function useAdminData(org: Theme) {
 
                 // Only update state if the changed document is relevant
                 if (change.doc) {
-                    const today = new Date().toISOString().split("T")[0];
+                    const today = format(new Date(), "yyyy-MM-dd");
                     const doc = change.doc as AnyDocument;
 
                     if (doc.org !== org && doc.org !== "all") {
@@ -105,7 +133,7 @@ export function useAdminData(org: Theme) {
                         return
                     }
 
-                    if ((doc.type === "birthday" || doc.type === "holiday") && doc.displayDate === today) {
+                    if (doc.type === "birthday" || (doc.type === "holiday" && doc.displayDate === today)) {
                         scheduleRefetch();
                         return
                     }
@@ -116,6 +144,7 @@ export function useAdminData(org: Theme) {
             });
 
         return () => {
+            clearTimeout(midnightTimeout);
             if (refetchTimeoutRef.current) {
                 clearTimeout(refetchTimeoutRef.current);
             }

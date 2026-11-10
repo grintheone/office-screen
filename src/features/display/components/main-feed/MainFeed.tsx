@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { isBirthdayOn } from "@/lib/birthdays";
 import BirthdayCard from "@/features/display/components/cards/BirthdayCard";
 import HolidayCard from "@/features/display/components/cards/HolidayCard";
 import InfoCard from "@/features/display/components/cards/InfoCard";
@@ -87,7 +88,7 @@ function getDisplayableAdminDocs(adminData: AnyDocument[]) {
         }
 
         if (doc.type === "birthday") {
-            return doc.showInMainFeed;
+            return doc.showInMainFeed && isBirthdayOn(doc.displayDate);
         }
 
         return true;

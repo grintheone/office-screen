@@ -1,4 +1,5 @@
 import { useAppDispatch } from "@/app/hooks";
+import { formatBirthday } from "@/lib/birthdays";
 import PersonIcon from "@/assets/icons/person.svg?react";
 import { DialogTrigger } from "@/components/ui/dialog";
 import { setFormData } from "@/features/admin/adminSlice";
@@ -29,7 +30,7 @@ function BirthdayCard(doc: BirthdayDocument) {
                     )}
                     <div className="text-left">{doc.name}</div>
                 </div>
-                <div>{new Date(doc.displayDate).toLocaleDateString()}</div>
+                <div>{formatBirthday(doc.displayDate)}</div>
             </DialogTrigger>
         </div>
     );

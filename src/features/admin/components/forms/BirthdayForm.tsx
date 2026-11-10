@@ -1,15 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 import { useRef, useState } from "react";
-import { ru } from "react-day-picker/locale";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import PersonIcon from "@/assets/icons/person.svg?react";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import {
     Form,
@@ -21,11 +17,6 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import {
     addNewDocByType,
@@ -37,13 +28,13 @@ import { upload } from "@/features/admin/loader";
 import { selectTheme } from "@/features/settings/settingsSlice";
 import { useAdminService } from "@/hooks/useAdminService";
 import { useS3Media } from "@/hooks/useS3Media";
-import { cn } from "@/lib/utils";
+import { getBirthdayMonthDay } from "@/lib/birthdays";
 import type { BirthdayDocument } from "@/services/AdminService";
 
 const birthdaySchema = z.object({
     name: z.string().min(1, { message: "Заполните поле" }),
-    displayDate: z.date({
-        error: "Выберите дату отображения",
+    displayDate: z.string().refine((value) => getBirthdayMonthDay(value) !== "", {
+        message: "Выберите день и месяц",
     }),
     photo: z.any(),
     photoUrl: z.string().optional(),
@@ -56,7 +47,6 @@ function BirthdayForm(doc: BirthdayDocument) {
     const org = useAppSelector(selectTheme);
     const admin = useAdminService();
 
-    const [open, setOpen] = useState(false);
     const closeRef = useRef<HTMLButtonElement>(null);
     const s3media = useS3Media(doc.photo);
 
@@ -65,7 +55,7 @@ function BirthdayForm(doc: BirthdayDocument) {
         defaultValues: {
             name: doc.name,
             displayDate:
-                doc.displayDate === "" ? undefined : new Date(doc.displayDate),
+                getBirthdayMonthDay(doc.displayDate),
             showEverywhere: doc.org === "all",
             showInMainFeed: doc.showInMainFeed,
             photo: undefined,
@@ -104,7 +94,7 @@ function BirthdayForm(doc: BirthdayDocument) {
             const document: BirthdayDocument = {
                 ...doc,
                 name: values.name,
-                displayDate: format(values.displayDate, "yyyy-MM-dd"),
+                displayDate: getBirthdayMonthDay(values.displayDate),
                 org: values.showEverywhere ? "all" : org,
                 showInMainFeed: values.showInMainFeed,
                 photo: values.photoUrl || "",
@@ -132,7 +122,7 @@ function BirthdayForm(doc: BirthdayDocument) {
             const document: BirthdayDocument = {
                 ...doc,
                 name: values.name,
-                displayDate: format(values.displayDate, "yyyy-MM-dd"),
+                displayDate: getBirthdayMonthDay(values.displayDate),
                 org: values.showEverywhere ? "all" : org,
                 showInMainFeed: values.showInMainFeed,
                 photo: values.photoUrl || "",
@@ -208,40 +198,40 @@ function BirthdayForm(doc: BirthdayDocument) {
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
                                     <FormLabel>Дата отображения</FormLabel>
-                                    <Popover open={open} onOpenChange={setOpen}>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-[248px] pl-3 text-left font-normal",
-                                                        !field.value && "text-muted-foreground",
-                                                    )}
-                                                >
-                                                    {field.value ? (
-                                                        format(field.value, "PPP")
-                                                    ) : (
-                                                        <span>Нажмите чтобы выбрать</span>
-                                                    )}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                locale={ru}
-                                                selected={field.value}
-                                                onSelect={(date) => {
-                                                    field.onChange(date);
-                                                    setOpen(false);
-                                                }}
-                                                captionLayout="label"
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
+                                    <div className="flex gap-2">
+                                        <select
+                                            aria-label="День"
+                                            className="h-9 rounded-md border px-3"
+                                            value={field.value.split("-")[1] || ""}
+                                            onBlur={field.onBlur}
+                                            ref={field.ref}
+                                            onChange={(event) => field.onChange(`${field.value.split("-")[0] || ""}-${event.target.value}`)}
+                                        >
+                                            <option value="" disabled>День</option>
+                                            {Array.from({ length: new Date(2000, Number(field.value.split("-")[0]) || 1, 0).getDate() }, (_, i) => (
+                                                <option key={i + 1} value={String(i + 1).padStart(2, "0")}>{i + 1}</option>
+                                            ))}
+                                        </select>
+                                        <select
+                                            aria-label="Месяц"
+                                            className="h-9 rounded-md border px-3"
+                                            value={field.value.split("-")[0] || ""}
+                                            onBlur={field.onBlur}
+                                            onChange={(event) => {
+                                                const month = event.target.value;
+                                                const day = field.value.split("-")[1] || "";
+                                                const maxDay = new Date(2000, Number(month), 0).getDate();
+                                                field.onChange(`${month}-${Number(day) > maxDay ? "" : day}`);
+                                            }}
+                                        >
+                                            <option value="" disabled>Месяц</option>
+                                            {["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"].map((month, i) => (
+                                                <option key={month} value={String(i + 1).padStart(2, "0")}>{month}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                     <FormDescription className="max-w-9/12">
-                                        Карточка будет отображаться на доске в выбранную дату
+                                        Карточка будет отображаться каждый год в выбранный день и месяц
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>

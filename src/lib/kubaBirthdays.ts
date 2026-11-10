@@ -3,8 +3,8 @@ import type { BirthdayDocument } from "@/services/AdminService";
 
 export function getBirthdaysFromFile(): BirthdayDocument[] {
     return bdays.map((person, index) => {
-        const [day, month, year] = person.birthday.split(".");
-        const displayDate = `${year}-${month}-${day}`;
+        const [day, month] = person.birthday.split(".");
+        const displayDate = `${month}-${day}`;
 
         return {
             _id: `birthday:vbb:${person.fullname}:${day}.${month}`,

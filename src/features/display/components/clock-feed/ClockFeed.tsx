@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { formatBirthday, getBirthdayMonthDay, isBirthdayOn } from "@/lib/birthdays";
+import { getClockBirthdayDates } from "@/lib/clockBirthdays";
 import ClockCard from "@/features/display/components/cards/ClockCard";
 import Clock from "@/features/display/components/clock";
 import ClockBirthdays from "@/features/display/components/clock-birthdays/ClockBirthdays";
@@ -30,10 +32,17 @@ function assembleAdminSlides(adminData: AnyDocument[]) {
     }
 
     const birthdayNames: string[] = [];
+    const birthdayDates = getClockBirthdayDates().map(getBirthdayMonthDay);
+    let hasWeekendBirthdays = false;
 
     adminData.forEach((doc) => {
-        if (doc.type === "birthday") {
-            birthdayNames.push(doc.name);
+        if (doc.type === "birthday" && birthdayDates.includes(getBirthdayMonthDay(doc.displayDate))) {
+            const name = doc.name.trim().split(/\s+/).slice(0, 2).join(" ");
+            const isPastBirthday = !isBirthdayOn(doc.displayDate);
+            birthdayNames.push(isPastBirthday
+                ? `${name} (${formatBirthday(doc.displayDate)})`
+                : name);
+            hasWeekendBirthdays ||= isPastBirthday;
         }
 
         if (doc.type === "clock") {
@@ -46,7 +55,7 @@ function assembleAdminSlides(adminData: AnyDocument[]) {
 
     if (birthdayNames.length > 0) {
         slides.push({
-            component: <ClockBirthdays names={birthdayNames} />,
+            component: <ClockBirthdays names={birthdayNames} hasWeekendBirthdays={hasWeekendBirthdays} />,
             duration: 30000,
         });
     }
